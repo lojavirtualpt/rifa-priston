@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Meus números</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.box{max-width:720px;margin:36px auto 60px}
+h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 6px}
+.busca{background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:22px;margin:20px 0;box-shadow:var(--sombra)}
+.busca label{font-weight:800;display:block;margin-bottom:6px}
+.tel{display:flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg)}
+.tel span{padding:13px;font-weight:800;border-right:1px solid var(--line);background:var(--bg3)}
+.tel input{flex:1;border:0;background:none;padding:13px;font-size:17px;outline:none;min-width:0}
+.tel:focus-within{border-color:var(--ouro);box-shadow:0 0 0 3px color-mix(in srgb,var(--ouro),transparent 75%)}
+.busca .btn-ouro{width:100%;margin-top:14px}
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.resumo div{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.resumo small{display:block;color:var(--mut);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.resumo b{font-family:var(--display);font-size:24px;color:var(--acc)}
+.rifa{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:16px}
+.cab{display:flex;gap:14px;align-items:center}
+.mini{width:62px;height:62px;border-radius:14px;flex:0 0 auto;overflow:hidden;background:linear-gradient(160deg,#1b2747,#070C17);display:grid;place-items:center;font-size:26px}
+.mini img{width:100%;height:100%;object-fit:cover}
+.cab h3{font-family:var(--display);font-size:18px;margin:0}.cab a{color:inherit;text-decoration:none}
+.st{display:inline-block;font-size:12px;font-weight:800;border-radius:20px;padding:3px 10px;margin-top:4px}
+.st.pago{background:color-mix(in srgb,var(--verde),transparent 82%);color:var(--verde)}
+.st.aguardando{background:color-mix(in srgb,var(--ouro),transparent 80%);color:var(--acc)}
+.nums{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.nums b{background:var(--fundo-escuro);color:var(--ouro-lt);padding:5px 9px;border-radius:8px;font-family:var(--display);font-size:14px}
+.nums b.win{background:linear-gradient(135deg,var(--ouro-lt),var(--ouro));color:#1a1204;box-shadow:0 0 0 2px var(--ouro)}
+.res{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bg3);font-size:14px}
+.res.ok{background:linear-gradient(135deg,var(--ouro-lt),var(--ouro));color:#1a1204;font-weight:800}
+.vazio{text-align:center;color:var(--mut);padding:30px;border:1px dashed var(--line);border-radius:18px}
+.erro{color:var(--alerta);font-weight:700;margin-top:8px;min-height:18px}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="marca" href="index.html"><span class="selo" id="logo">⚔</span><b id="nomeSite"></b></a>
+  <a class="btn-g" href="index.html" style="text-decoration:none">← Rifas</a>
+  <button class="btn-g icone" onclick="alternarTema()" title="Modo claro/escuro" aria-label="Alternar modo claro e escuro">◐</button>
+</div></header>
+<div class="wrap box">
+  <h1 class="ouro-txt">Meus números</h1>
+  <p class="mut" style="margin:0">Veja todas as suas reservas, pagamentos e resultados pelo telefone que você usou na compra.</p>
+  <div class="busca">
+    <label for="whats">Telefone ou WhatsApp <small class="mut" style="font-weight:500">(com DDD)</small></label>
+    <div class="tel"><span>🇧🇷 +55</span><input id="whats" inputmode="numeric" maxlength="15" placeholder="(11) 99999-9999" autocomplete="tel-national" onkeydown="if(event.key==='Enter')buscar()"></div>
+    <button class="btn-ouro" onclick="buscar()">🔍 Buscar minhas reservas</button>
+    <div class="erro" id="erro"></div>
+  </div>
+  <div id="saida"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="shared.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+(async()=>{ const s=await api.site(); aplicarTema(s); $('nomeSite').textContent=s.nomeSite;
+  if(safeUrl(s.logo)) $('logo').innerHTML=`<img src="${esc(s.logo)}" alt="">`;
+  let w=''; try{ w=localStorage.getItem('rifa_whats')||''; }catch{} if(w){ $('whats').value=w; buscar(); } })();
+async function buscar(){
+  const w=$('whats').value.replace(/\D/g,''); $('erro').textContent='';
+  if(w.length<10) return $('erro').textContent='Digite o telefone com DDD.';
+  try{ localStorage.setItem('rifa_whats',w); }catch{}
+  $('saida').innerHTML='<div class="vazio">Buscando…</div>';
+  try{
+    const ps=await api.meusTodos(w);
+    if(!ps.length) return $('saida').innerHTML='<div class="vazio">Nenhuma reserva para esse telefone.<br><a href="index.html" style="color:var(--acc);font-weight:800">Ver rifas abertas →</a></div>';
+    // agrupa por rifa
+    const g={}; ps.forEach(p=>{ (g[p.campanha.id]=g[p.campanha.id]||{c:p.campanha,ps:[]}).ps.push(p); });
+    const pagos=ps.filter(p=>p.status==='pago');
+    $('saida').innerHTML=`<div class="resumo"><div><small>Rifas</small><b>${Object.keys(g).length}</b></div><div><small>Números pagos</small><b>${pagos.reduce((a,p)=>a+p.numeros.length,0)}</b></div><div><small>Investido</small><b>${brl(pagos.reduce((a,p)=>a+p.valor,0))}</b></div></div>`
+    +Object.values(g).map(({c,ps})=>{
+      const r=c.resultado, meus=ps.filter(p=>p.status==='pago').flatMap(p=>p.numeros), ganhei=r&&meus.includes(+r.numero), img=safeUrl(c.imagem);
+      return `<div class="rifa"><div class="cab"><a class="mini" href="rifa.html?c=${encodeURIComponent(c.id)}">${img?`<img src="${esc(img)}" alt="">`:'🛡'}</a>
+        <div><a href="rifa.html?c=${encodeURIComponent(c.id)}"><h3>${esc(c.titulo)}</h3></a></div></div>
+        ${ps.map(p=>`<div style="margin-top:12px"><span class="st ${p.status==='pago'?'pago':'aguardando'}">${p.status==='pago'?'✅ Pago':'⏳ Aguardando pagamento'}</span> <small class="mut">${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} · ${brl(p.valor)}</small>
+          <div class="nums">${p.numeros.slice().sort((a,b)=>a-b).map(n=>`<b class="${r&&+r.numero===n?'win':''}">${fmtNum(n,c.total)}</b>`).join('')}</div></div>`).join('')}
+        ${r?`<div class="res ${ganhei?'ok':''}">${ganhei?'🏆 VOCÊ GANHOU! Entraremos em contato pelo WhatsApp.':`Resultado: nº ${fmtNum(+r.numero,c.total)} (${+r.premio}º prêmio da Federal). Não foi dessa vez!`}</div>`:c.status==='ativa'?'<div class="res">🎲 Sorteio pela Loteria Federal ao atingir 100% das vendas.</div>':''}
+      </div>`;}).join('');
+  }catch(e){ $('saida').innerHTML=''; $('erro').textContent='Não foi possível buscar agora. Tente de novo.'; console.error(e); }
+}
+</script>
+</body>
+</html>

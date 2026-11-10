@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Painel da Rifa</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.auth{max-width:420px;margin:8vh auto;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--sombra)}
+.auth h1{font-family:var(--display);font-size:26px;margin:0 0 4px}
+label{display:block;font-size:13px;font-weight:700;color:var(--mut);margin:14px 0 5px}
+input,textarea,select{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:15px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--ouro);box-shadow:0 0 0 3px color-mix(in srgb,var(--ouro),transparent 75%)}
+input[type=color]{padding:4px;height:44px;cursor:pointer}
+.w100{width:100%;margin-top:18px}
+.erro{color:var(--alerta);font-size:14px;font-weight:700;min-height:20px;margin-top:10px}
+.demo{background:color-mix(in srgb,var(--ouro),transparent 82%);border:1px solid color-mix(in srgb,var(--ouro),transparent 50%);color:var(--txt);border-radius:12px;padding:10px 14px;font-size:14px;margin:14px 0}
+.layout{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:24px 0 60px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+nav.lado{display:flex;flex-direction:column;gap:6px;position:sticky;top:84px;align-self:start}
+@media(max-width:820px){nav.lado{flex-direction:row;overflow-x:auto;position:static}}
+nav.lado button{text-align:left;background:none;border:1px solid transparent;border-radius:12px;padding:11px 14px;font-weight:700;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav.lado button[aria-current=true]{background:var(--bg2);border-color:var(--line);color:var(--acc)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:18px}
+.card h2{font-family:var(--display);font-size:22px;margin:0 0 4px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0 14px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi div{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi small{color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.kpi b{display:block;font-family:var(--display);font-size:24px;color:var(--acc)}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:10px}
+.foto{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg3)}
+.foto img{width:100%;height:100%;object-fit:cover}
+.foto button{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:0;background:#000b;color:#fff;cursor:pointer}
+.foto .capa{position:absolute;bottom:6px;left:6px;font-size:11px;font-weight:800;background:var(--ouro);color:#1a1204;border-radius:20px;padding:2px 8px}
+.up{border:2px dashed var(--line);border-radius:12px;display:grid;place-items:center;aspect-ratio:1;cursor:pointer;color:var(--mut);font-weight:700;text-align:center;font-size:13px}
+.up:hover{border-color:var(--ouro);color:var(--acc)}
+.cota{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;margin-top:8px}
+.cota button{border:1px solid var(--line);background:var(--bg);border-radius:10px;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.st{font-size:12px;font-weight:800;border-radius:20px;padding:3px 9px}
+.st.pago{background:color-mix(in srgb,var(--verde),transparent 80%);color:var(--verde)}
+.st.aguardando{background:color-mix(in srgb,var(--ouro),transparent 80%);color:var(--acc)}
+.st.expirado{background:var(--bg3);color:var(--mut)}
+.toast{position:fixed;bottom:20px;left:50%;translate:-50% 0;background:var(--txt);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+.qr{background:#fff;padding:10px;border-radius:12px;width:200px;margin:12px auto}
+.qr img{width:100%;display:block}
+.pre{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.pre button{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="marca" href="index.html" target="_blank" rel="noopener"><span class="selo">⚔</span><b>Painel</b></a>
+  <button class="btn-g icone" onclick="alternarTema()" title="Claro/escuro">◐</button>
+  <button class="btn-g" id="btnSair" hidden onclick="sair()">Sair</button>
+</div></header>
+
+<div class="wrap">
+  <!-- LOGIN -->
+  <div class="auth" id="telaLogin" hidden>
+    <h1>Área restrita</h1><p class="mut" style="margin:0">Somente o organizador tem acesso.</p>
+    <label>E-mail</label><input id="email" type="email" autocomplete="username">
+    <label>Senha</label><input id="senha" type="password" autocomplete="current-password" onkeydown="if(event.key=='Enter')entrar()">
+    <button class="btn-ouro w100" id="btEntrar" onclick="entrar()">Entrar</button>
+    <div class="erro" id="erroLogin"></div>
+  </div>
+  <!-- 2FA -->
+  <div class="auth" id="tela2fa" hidden>
+    <h1>Verificação em 2 etapas</h1><div id="conteudo2fa"></div>
+    <label>Código de 6 dígitos do app autenticador</label><input id="codigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" onkeydown="if(event.key=='Enter')verificar()">
+    <button class="btn-ouro w100" onclick="verificar()">Confirmar</button>
+    <div class="erro" id="erro2fa"></div>
+  </div>
+
+  <!-- PAINEL -->
+  <div id="painel" hidden>
+    <div class="demo" id="avisoDemo" hidden>⚠ <b>Modo demonstração</b> — nada é protegido nem salvo online. Para valer, configure o Supabase em <code>config.js</code> (veja SEGURANCA.md).</div>
+    <div class="card" style="margin:20px 0 0;display:flex;gap:10px;align-items:end;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px"><label style="margin-top:0">Campanha</label><select id="selCamp" onchange="trocarCamp(this.value)"></select></div>
+      <button class="btn-g" onclick="novaCamp()">+ Nova campanha</button>
+      <a class="btn-g" id="verPag" target="_blank" rel="noopener" style="text-decoration:none">Ver página ↗</a>
+    </div>
+    <div class="layout">
+      <nav class="lado" id="abas">
+        <button data-aba="resumo" aria-current="true">📊 Resumo</button>
+        <button data-aba="personagem">🛡 Personagem</button>
+        <button data-aba="aparencia">🎨 Aparência e textos</button>
+        <button data-aba="pedidos">🧾 Pedidos</button>
+        <button data-aba="compradores">👥 Compradores</button>
+        <button data-aba="resultado">🏆 Resultado</button>
+      </nav>
+      <main>
+        <section data-sec="resumo">
+          <div class="card"><h2>Resumo da campanha</h2><p class="mut" id="resTitulo"></p><div class="kpi" id="kpi"></div></div>
+          <div class="card"><h2>Simulação de meta</h2><p class="mut" id="sim"></p></div>
+        </section>
+
+        <section data-sec="personagem" hidden>
+          <div class="card"><h2>Fotos do personagem</h2><p class="mut" style="margin:0">Prints do personagem, equipamentos, status. A primeira é a capa. PNG/JPG/WEBP até 5 MB.</p>
+            <div class="fotos" id="fotos"></div><input type="file" id="arq" accept="image/png,image/jpeg,image/webp" multiple hidden onchange="subir(this.files)"></div>
+          <div class="card"><h2>Dados do item</h2>
+            <label>Título</label><input id="c_titulo" maxlength="120">
+            <label>Descrição</label><textarea id="c_descricao" rows="5" maxlength="4000"></textarea>
+            <div class="g2">
+              <div><label>Valor de mercado (R$)</label><input id="c_valorMercado" type="number" min="0"></div>
+              <div><label>Preço por número (R$)</label><input id="c_preco" type="number" step="0.01" min="0.01"></div>
+              <div><label>Quantidade de números</label><select id="c_total"><option>100</option><option>1000</option><option>10000</option><option>100000</option></select></div>
+              <div><label>Status</label><select id="c_status"><option value="rascunho">Rascunho (oculta)</option><option value="ativa">Ativa (vendendo)</option><option value="encerrada">Encerrada</option></select></div>
+              <div><label>Concurso Loteria Federal</label><input id="c_concurso" placeholder="ex: 6015"></div>
+              <div><label>Data do sorteio</label><input id="c_dataSorteio" placeholder="sáb 21/11/2026 19h"></div>
+            </div>
+            <label>Pacotes (separe por vírgula)</label><input id="c_pacotes" placeholder="10, 25, 50, 100">
+          </div>
+          <div class="card"><h2>Cotas premiadas</h2><p class="mut" style="margin:0">Números que dão prêmio instantâneo.</p><div id="cotas"></div>
+            <button class="btn-g" style="margin-top:10px" onclick="addCota()">+ Adicionar cota</button></div>
+          <button class="btn-ouro" onclick="salvarCamp()">Salvar personagem</button>
+          <button class="btn-g" style="margin-left:8px" onclick="novaCamp()">Nova campanha</button>
+        </section>
+
+        <section data-sec="aparencia" hidden>
+          <div class="card"><h2>Cores</h2>
+            <div class="g2">
+              <div><label>Cor de destaque</label><input type="color" id="s_corDestaque"></div>
+              <div><label>Fundo (modo escuro)</label><input type="color" id="s_corFundo"></div>
+              <div><label>Fundo (modo claro)</label><input type="color" id="s_corClara"></div>
+              <div><label>Tema padrão do visitante</label><select id="s_temaPadrao"><option value="auto">Automático (do aparelho)</option><option value="dark">Escuro</option><option value="light">Claro</option></select></div>
+            </div>
+            <label>Paletas prontas</label><div class="pre" id="pre"></div>
+          </div>
+          <div class="card"><h2>Textos</h2>
+            <div class="g2">
+              <div><label>Nome do site</label><input id="s_nomeSite" maxlength="40"></div>
+              <div><label>Frase de efeito</label><input id="s_slogan" maxlength="80"></div>
+              <div><label>Organizador</label><input id="s_organizador" maxlength="40"></div>
+              <div><label>Nº do certificado de autorização</label><input id="s_certificado" maxlength="60"></div>
+              <div><label>Texto do botão de compra</label><input id="s_ctaTexto" maxlength="30"></div>
+            </div>
+            <label>Texto da entrega do prêmio</label><textarea id="s_entrega" rows="3" maxlength="600"></textarea>
+            <label>Logo (opcional)</label><div class="fotos" style="grid-template-columns:110px" id="logoBox"></div>
+            <input type="file" id="arqLogo" accept="image/png,image/jpeg,image/webp" hidden onchange="subirLogo(this.files[0])">
+          </div>
+          <button class="btn-ouro" onclick="salvarSite()">Salvar aparência</button>
+        </section>
+
+        <section data-sec="pedidos" hidden>
+          <div class="card"><h2>Pedidos</h2><p class="mut">Em produção, o pagamento é confirmado automaticamente pelo webhook do Pix. O botão abaixo é para casos manuais.</p>
+            <div class="g2" style="align-items:end"><div><label>Buscar (nome, telefone ou número)</label><input id="fBusca" oninput="pedidos()"></div>
+              <div><label>Status</label><select id="fStatus" onchange="pedidos()"><option value="">Todos</option><option value="pago">Pagos</option><option value="aguardando">Aguardando</option><option value="expirado">Expirados</option></select></div>
+              <div><button class="btn-g" onclick="csv()" style="margin-bottom:2px">⬇ Exportar CSV</button></div></div>
+            <div style="overflow:auto;margin-top:12px"><table id="ped"></table></div>
+            <button class="btn-g" id="btZerar" hidden onclick="zerar()">Zerar vendas (só demo)</button></div>
+        </section>
+
+        <section data-sec="compradores" hidden>
+          <div class="card"><h2>Quem comprou</h2><p class="mut">Pagamentos confirmados agrupados por pessoa, do maior para o menor.</p>
+            <div style="overflow:auto"><table id="comp"></table></div></div>
+        </section>
+
+        <section data-sec="resultado" hidden>
+          <div class="card"><h2>Apurar pela Loteria Federal</h2><p class="mut">Digite os 5 prêmios do concurso (confira em loterias.caixa.gov.br).</p>
+            <div class="g2" id="premios"></div>
+            <button class="btn-ouro" style="margin-top:16px" onclick="apurar()">Apurar e publicar ganhador</button><div id="res" style="margin-top:14px"></div></div>
+        </section>
+      </main>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="shared.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let camp=null, site=null, fator=null, tentativas=0;
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400)};
+const mostra=id=>['telaLogin','tela2fa','painel'].forEach(x=>$(x).hidden=x!==id);
+
+// ---------- fluxo de acesso ----------
+async function iniciar(){
+  site=await api.site(); aplicarTema(site);
+  if(!api.online){ $('avisoDemo').hidden=false; $('btZerar').hidden=false; return abrirPainel(); }
+  const s=await api.auth.sessao(); if(!s) return mostra('telaLogin');
+  $('btnSair').hidden=false;
+  const n=await api.auth.nivel();
+  if(n.currentLevel==='aal2') return checaAdmin();
+  const f=await api.auth.fatores(); const ok=f.find(x=>x.status==='verified');
+  mostra('tela2fa');
+  if(ok){ fator=ok.id; $('conteudo2fa').innerHTML='<p class="mut">Abra o Google Authenticator / Authy e digite o código.</p>'; }
+  else{ const e=await api.auth.cadastrar2fa(); fator=e.id;
+    $('conteudo2fa').innerHTML=`<p class="mut">Primeiro acesso: escaneie o QR code no app autenticador (Google Authenticator, Authy ou Microsoft Authenticator).</p><div class="qr"><img src="${String(e.totp.qr_code).trim().startsWith('<')?'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(e.totp.qr_code):esc(e.totp.qr_code)}" alt="QR code"></div><p class="mut" style="font-size:12px;word-break:break-all">Chave manual: ${esc(e.totp.secret)}</p>`; }
+  setTimeout(()=>$('codigo').focus(),50);
+}
+async function entrar(){
+  if(tentativas>=5) return $('erroLogin').textContent='Muitas tentativas. Aguarde 1 minuto.';
+  $('btEntrar').disabled=true; $('erroLogin').textContent='';
+  try{ await api.auth.entrar($('email').value.trim(),$('senha').value); $('senha').value=''; await iniciar(); }
+  catch(e){ tentativas++; if(tentativas>=5) setTimeout(()=>tentativas=0,60000); $('erroLogin').textContent=e.message; }
+  $('btEntrar').disabled=false;
+}
+async function verificar(){
+  try{ await api.auth.verificar2fa(fator,$('codigo').value.trim()); $('codigo').value=''; await checaAdmin(); }
+  catch(e){ $('erro2fa').textContent=e.message; }
+}
+async function checaAdmin(){
+  if(!(await api.auth.ehAdmin())){ await api.auth.sair(); mostra('telaLogin'); $('erroLogin').textContent='Este usuário não tem permissão de administrador.'; return; }
+  abrirPainel();
+}
+async function sair(){ await api.auth.sair(); location.reload(); }
+// encerra sessão após 30 min parado
+let ocioso; const resetOcio=()=>{clearTimeout(ocioso); if(api.online) ocioso=setTimeout(sair,30*60*1000)};
+['click','keydown','mousemove'].forEach(e=>addEventListener(e,resetOcio,{passive:true}));
+
+// ---------- painel ----------
+const VAZIA=()=>({titulo:'',descricao:'',imagem:'',galeria:[],valorMercado:0,preco:1.99,total:1000,concurso:'',dataSorteio:'',pacotes:[10,25,50,100],cotas:[],status:'rascunho',resultado:null});
+const ROT={rascunho:'📝',ativa:'🟢',encerrada:'🏁'};
+async function listaCamps(selId){
+  const cs=await api.listarCampanhas();
+  $('selCamp').innerHTML=cs.length?cs.map(c=>`<option value="${esc(c.id)}">${ROT[c.status]||''} ${esc(c.titulo)}</option>`).join(''):'<option value="">(nenhuma — crie a primeira)</option>';
+  if(selId) $('selCamp').value=selId;
+  return cs;
+}
+async function trocarCamp(id){ camp=await api.adminCampanha(id)||VAZIA(); preencherCamp(); resumo(); pedidos(); }
+async function abrirPainel(){
+  mostra('painel'); resetOcio();
+  const cs=await listaCamps();
+  camp=cs[0]||VAZIA();
+  preencherCamp(); preencherSite(); await resumo(); await pedidos();
+  $('premios').innerHTML=[1,2,3,4,5].map(i=>`<div><label>${i}º prêmio</label><input id="p${i}" inputmode="numeric" maxlength="6"></div>`).join('');
+}
+$('abas').onclick=e=>{const b=e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#abas button').forEach(x=>x.setAttribute('aria-current',x===b));
+  document.querySelectorAll('[data-sec]').forEach(s=>s.hidden=s.dataset.sec!==b.dataset.aba);
+  if(b.dataset.aba==='pedidos'||b.dataset.aba==='compradores') pedidos(); if(b.dataset.aba==='resumo') resumo(); };
+
+const CC=['titulo','descricao','valorMercado','preco','total','status','concurso','dataSorteio'];
+function preencherCamp(){
+  CC.forEach(k=>$('c_'+k).value=camp[k]??''); $('c_pacotes').value=(camp.pacotes||[]).join(', ');
+  $('verPag').href=camp.id&&api.online?`rifa.html?c=${encodeURIComponent(camp.id)}`:'rifa.html'; $('verPag').hidden=!camp.id&&api.online;
+  renderFotos(); renderCotas();
+}
+function renderFotos(){
+  const g=camp.galeria?.length?camp.galeria:(camp.imagem?[camp.imagem]:[]); camp.galeria=g;
+  $('fotos').innerHTML=g.map((u,i)=>`<div class="foto"><img src="${esc(safeUrl(u))}" alt="">${i==0?'<span class="capa">Capa</span>':`<button title="Tornar capa" style="left:6px;right:auto" onclick="capa(${i})">★</button>`}<button title="Remover" onclick="remFoto(${i})">✕</button></div>`).join('')
+    +`<label class="up" for="arq">＋<br>Adicionar fotos</label>`;
+}
+function capa(i){ const g=camp.galeria; g.unshift(g.splice(i,1)[0]); renderFotos(); }
+function remFoto(i){ camp.galeria.splice(i,1); renderFotos(); }
+async function subir(files){
+  for(const f of files){ try{ camp.galeria.push(await api.subirImagem(f)); }catch(e){ toast(e.message); } }
+  $('arq').value=''; renderFotos(); toast('Fotos adicionadas — clique em Salvar');
+}
+function renderCotas(){
+  $('cotas').innerHTML=(camp.cotas||[]).map((c,i)=>`<div class="cota"><input type="number" min="0" value="${+c.n}" onchange="camp.cotas[${i}].n=+this.value" placeholder="Número"><input value="${esc(c.premio)}" maxlength="60" onchange="camp.cotas[${i}].premio=this.value" placeholder="Prêmio"><button onclick="camp.cotas.splice(${i},1);renderCotas()">✕</button></div>`).join('');
+}
+function addCota(){ camp.cotas=camp.cotas||[]; camp.cotas.push({n:Math.floor(Math.random()*(+$('c_total').value)),premio:''}); renderCotas(); }
+async function salvarCamp(){
+  const novo={...camp}; CC.forEach(k=>novo[k]=$('c_'+k).value);
+  ['valorMercado','preco','total'].forEach(k=>novo[k]=+novo[k]);
+  novo.pacotes=$('c_pacotes').value.split(',').map(x=>parseInt(x)).filter(x=>x>0).slice(0,6);
+  novo.cotas=(camp.cotas||[]).filter(c=>c.premio&&c.n>=0&&c.n<novo.total);
+  novo.imagem=novo.galeria[0]||'';
+  if(novo.total!==camp.total && camp.id && Object.keys(await api.numeros(camp)).length) return toast('Não dá para mudar a quantidade com vendas em andamento');
+  if(novo.titulo.trim().length<3) return toast('Dê um título ao item (mín. 3 letras)');
+  try{ camp=await api.salvarCampanha(novo); preencherCamp(); await listaCamps(camp.id); toast('Personagem salvo ✔'); resumo(); }catch(e){ toast('Erro: '+e.message); }
+}
+function novaCamp(){
+  camp=VAZIA(); if(!api.online) api.zerarDemo(); preencherCamp();
+  $('selCamp').insertAdjacentHTML('afterbegin','<option value="" selected>📝 (nova campanha — não salva)</option>');
+  document.querySelector('[data-aba=personagem]').click(); toast('Preencha os dados e clique em Salvar'); }
+
+// aparência
+const SC=['corDestaque','corFundo','corClara','temaPadrao','nomeSite','slogan','organizador','certificado','ctaTexto','entrega'];
+const PALETAS=[['#E2B458','#070C17','#F3EEE3'],['#C0392B','#140A0A','#F6EEEA'],['#3FA9F5','#06111F','#EEF4FA'],['#9B59F6','#0E0819','#F2EEF9'],['#2ECC71','#07130D','#EEF6F1']];
+function preencherSite(){
+  SC.forEach(k=>$('s_'+k).value=site[k]??'');
+  $('pre').innerHTML=PALETAS.map((p,i)=>`<button title="Paleta ${i+1}" style="background:linear-gradient(135deg,${p[0]} 50%,${p[1]} 50%)" onclick="paleta(${i})"></button>`).join('');
+  SC.slice(0,4).forEach(k=>$('s_'+k).oninput=()=>{lerSite();aplicarTema(site)});
+  renderLogo();
+}
+function paleta(i){ const p=PALETAS[i]; $('s_corDestaque').value=p[0]; $('s_corFundo').value=p[1]; $('s_corClara').value=p[2]; lerSite(); aplicarTema(site); }
+function lerSite(){ SC.forEach(k=>site[k]=$('s_'+k).value); }
+function renderLogo(){ $('logoBox').innerHTML=site.logo?`<div class="foto"><img src="${esc(safeUrl(site.logo))}" alt=""><button onclick="site.logo='';renderLogo()">✕</button></div>`:`<label class="up" for="arqLogo">＋<br>Logo</label>`; }
+async function subirLogo(f){ try{ site.logo=await api.subirImagem(f); renderLogo(); }catch(e){ toast(e.message); } }
+async function salvarSite(){ lerSite(); try{ await api.salvarSite(site); toast('Aparência salva ✔'); }catch(e){ toast('Erro: '+e.message); } }
+
+// resumo / pedidos / resultado
+async function resumo(){
+  if(!camp.id && api.online){ $('resTitulo').textContent='Nenhuma campanha ainda — cadastre na aba Personagem.'; $('kpi').innerHTML=''; return; }
+  const nums=await api.numeros(camp); const v=Object.values(nums), pagos=v.filter(x=>x.pago).length;
+  const meta=camp.total*camp.preco;
+  $('resTitulo').textContent=`${camp.titulo} · ${camp.status}`;
+  $('kpi').innerHTML=`<div><small>Pagos</small><b>${pagos}/${camp.total}</b></div><div><small>Reservados</small><b>${v.length-pagos}</b></div><div><small>Arrecadado</small><b>${brl(pagos*camp.preco)}</b></div><div><small>Meta</small><b>${brl(meta)}</b></div>`;
+  $('sim').innerHTML=`${camp.total} números × ${brl(camp.preco)} = <b>${brl(meta)}</b> — ${(meta/(camp.valorMercado||1)).toFixed(1)}× o valor do item. Ideal: entre 2× e 3×.`;
+}
+let PEDS=[];
+const zap=w=>`https://wa.me/55${encodeURIComponent(w)}`;
+async function pedidos(){
+  if(!camp.id && api.online){ $('ped').innerHTML='<tr><td class="mut">Salve a campanha primeiro.</td></tr>'; $('comp').innerHTML=''; return; }
+  PEDS=await api.pedidos(camp);
+  // vencidos aparecem como expirados mesmo antes da limpeza automática
+  PEDS.forEach(p=>{ if(p.status==='aguardando'&&p.expira_em&&new Date(p.expira_em)<new Date()) p.status='expirado'; });
+  const b=$('fBusca').value.trim().toLowerCase(), f=$('fStatus').value, bn=b.replace(/\D/g,'');
+  const ps=PEDS.filter(p=>(!f||p.status===f)&&(!b||p.nome.toLowerCase().includes(b)||(bn&&p.whats.includes(bn))||(bn&&p.numeros.includes(+bn))));
+  $('ped').innerHTML='<tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Números</th><th>Valor</th><th>Status</th><th></th></tr>'+(ps.length?ps.map(p=>`<tr><td>${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td><a href="${zap(p.whats)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(p.whats)}</a></td><td title="${p.numeros.map(n=>fmtNum(n,camp.total)).join(', ')}">${p.numeros.length} <small class="mut">(${p.numeros.slice(0,4).map(n=>fmtNum(n,camp.total)).join(', ')}${p.numeros.length>4?'…':''})</small></td><td>${brl(p.valor)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td><td>${p.status==='aguardando'?`<button class="btn-g" onclick="confirmar('${esc(p.id)}')">Confirmar</button>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="mut">Nenhum pedido.</td></tr>');
+  // compradores agrupados
+  const g={}; PEDS.filter(p=>p.status==='pago').forEach(p=>{ const k=p.whats; (g[k]=g[k]||{nome:p.nome,whats:k,qtd:0,valor:0,nums:[]}); g[k].qtd+=p.numeros.length; g[k].valor+=+p.valor; g[k].nums.push(...p.numeros); });
+  const cs=Object.values(g).sort((a,b)=>b.qtd-a.qtd);
+  $('comp').innerHTML='<tr><th>#</th><th>Nome</th><th>WhatsApp</th><th>Números</th><th>Total pago</th></tr>'+(cs.length?cs.map((c,i)=>`<tr><td>${i+1}</td><td>${esc(c.nome)}</td><td><a href="${zap(c.whats)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(c.whats)}</a></td><td title="${c.nums.sort((a,b)=>a-b).map(n=>fmtNum(n,camp.total)).join(', ')}">${c.qtd}</td><td>${brl(c.valor)}</td></tr>`).join(''):'<tr><td colspan="5" class="mut">Nenhum pagamento confirmado ainda.</td></tr>');
+}
+function csv(){
+  const linhas=[['data','nome','whatsapp','status','quantidade','valor','numeros']].concat(PEDS.map(p=>[new Date(p.created_at).toLocaleString('pt-BR'),p.nome,p.whats,p.status,p.numeros.length,String(p.valor).replace('.',','),p.numeros.map(n=>fmtNum(n,camp.total)).join(' ')]));
+  // evita injeção de fórmula no Excel
+  const cel=v=>{ v=String(v); if(/^[=+\-@]/.test(v)) v="'"+v; return '"'+v.replace(/"/g,'""')+'"'; };
+  const blob=new Blob(['﻿'+linhas.map(l=>l.map(cel).join(';')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`pedidos-${(camp.titulo||'rifa').replace(/\W+/g,'-').toLowerCase()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+async function confirmar(id){ if(!confirm('Confirmar pagamento deste pedido?')) return; try{ await api.confirmar(id); toast('Pago ✔'); pedidos(); }catch(e){ toast(e.message); } }
+async function zerar(){ if(confirm('Zerar todas as vendas da demonstração?')){ await api.zerarDemo(); camp=await api.adminCampanha(); pedidos(); resumo(); } }
+async function apurar(){
+  const pr=[1,2,3,4,5].map(i=>$('p'+i).value.trim());
+  const w=apurarNumero(camp.total, await api.numeros(camp), pr);
+  if(!w) return $('res').innerHTML='<p class="erro">Nenhum número pago corresponde aos prêmios.</p>';
+  const ps=await api.pedidos(camp); const dono=ps.find(p=>p.status==='pago'&&p.numeros.includes(w.numero));
+  if(!confirm(`Ganhador: número ${fmtNum(w.numero,camp.total)} — ${dono?.nome}. Publicar?`)) return;
+  camp.resultado={premios:pr,numero:w.numero,premio:w.premio,nome:(dono?.nome||'').split(' ')[0]}; camp.status='encerrada';
+  try{ camp=await api.salvarCampanha(camp); $('res').innerHTML=`<p><b>🏆 ${fmtNum(w.numero,camp.total)}</b> — ${esc(dono?.nome)} (${esc(dono?.whats)}) pelo ${w.premio}º prêmio. Publicado.</p>`; }catch(e){ toast(e.message); }
+}
+iniciar();
+</script>
+</body>
+</html>

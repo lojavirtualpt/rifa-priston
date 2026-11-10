@@ -1,0 +1,47 @@
+/* Paleta inspirada no "Onde as Milhas": noite + ouro, Cinzel + Manrope.
+   --ouro, --fundo-escuro e --fundo-claro vêm do painel (aplicarTema). */
+:root{
+  --ouro:#E2B458; --fundo-escuro:#070C17; --fundo-claro:#F3EEE3;
+  --ouro-lt:color-mix(in srgb,var(--ouro),#fff 38%);
+  --ouro-dk:color-mix(in srgb,var(--ouro),#000 32%);
+  --verde:#3FB984; --alerta:#E8735A;
+  --display:"Cinzel",Georgia,serif; --body:"Manrope","Segoe UI",system-ui,sans-serif;
+  /* claro */
+  --bg:var(--fundo-claro); --bg2:#FFFDF8; --bg3:color-mix(in srgb,var(--fundo-claro),#000 5%);
+  --line:color-mix(in srgb,var(--fundo-claro),#000 12%);
+  --txt:#16130D; --mut:#6B6457; --acc:var(--ouro-dk); --sombra:0 18px 40px #3a2a0a1f;
+  --hero-ink:color-mix(in srgb,var(--fundo-escuro),#000 0%);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:var(--fundo-escuro); --bg2:color-mix(in srgb,var(--fundo-escuro),#fff 4%); --bg3:color-mix(in srgb,var(--fundo-escuro),#fff 8%);
+  --line:color-mix(in srgb,var(--fundo-escuro),#fff 13%); --txt:#F3EEE3; --mut:#A3ACBD; --acc:var(--ouro); --sombra:0 24px 50px #0008; color-scheme:dark;
+}}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--g1:var(--ouro-lt);--g2:var(--ouro);--g3:var(--ouro-dk)}}
+:root[data-theme=dark]{--g1:var(--ouro-lt);--g2:var(--ouro);--g3:var(--ouro-dk);
+  --bg:var(--fundo-escuro); --bg2:color-mix(in srgb,var(--fundo-escuro),#fff 4%); --bg3:color-mix(in srgb,var(--fundo-escuro),#fff 8%);
+  --line:color-mix(in srgb,var(--fundo-escuro),#fff 13%); --txt:#F3EEE3; --mut:#A3ACBD; --acc:var(--ouro); --sombra:0 24px 50px #0008; color-scheme:dark;
+}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ouro);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:auto;padding:0 16px}
+.mut{color:var(--mut)}
+.disp{font-family:var(--display);letter-spacing:.03em}
+.ouro-txt{background:linear-gradient(180deg,var(--g1,var(--ouro-dk)),var(--g2,color-mix(in srgb,var(--ouro),#000 45%)) 60%,var(--g3,color-mix(in srgb,var(--ouro),#000 60%)));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* barra superior */
+.bar{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg),transparent 12%);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:12px;height:64px}
+.marca{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;margin-right:auto}
+.marca .selo{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,var(--ouro-lt),var(--ouro) 50%,var(--ouro-dk));color:#1a1204;font-size:18px;box-shadow:0 0 0 1px color-mix(in srgb,var(--ouro),transparent 50%),0 6px 18px color-mix(in srgb,var(--ouro),transparent 70%);overflow:hidden}
+.marca .selo img{width:100%;height:100%;object-fit:cover}
+.marca b{font-family:var(--display);font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:15px;color:var(--acc)}
+.btn-g{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:9px 14px;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;transition:.18s}
+.btn-g:hover{border-color:var(--ouro);color:var(--acc)}
+.icone{width:40px;height:40px;padding:0;justify-content:center}
+.btn-ouro{border:0;border-radius:999px;padding:14px 22px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,var(--ouro-lt),var(--ouro));color:#1a1204;box-shadow:0 10px 26px color-mix(in srgb,var(--ouro),transparent 70%);transition:.18s}
+.btn-ouro:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.btn-ouro:disabled{opacity:.5;cursor:wait;transform:none}

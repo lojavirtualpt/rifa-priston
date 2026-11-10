@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Rifas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+.topo{position:relative;overflow:hidden;text-align:center;padding:56px 0 46px;border-bottom:1px solid var(--line)}
+.topo::before{content:"";position:absolute;inset:-40px 0 0;pointer-events:none;opacity:.12;
+  background-image:radial-gradient(circle at 50% 100%,transparent 0 13px,var(--ouro) 13px 14.5px,transparent 15px),radial-gradient(circle at 50% 100%,transparent 0 21px,var(--ouro) 21px 22.5px,transparent 23px),radial-gradient(circle at 50% 100%,transparent 0 29px,var(--ouro) 29px 30.5px,transparent 31px);
+  background-size:64px 32px;-webkit-mask-image:linear-gradient(#000,transparent 70%);mask-image:linear-gradient(#000,transparent 70%)}
+.topo::after{content:"";position:absolute;left:50%;top:30%;translate:-50% -50%;width:min(820px,140%);aspect-ratio:1;pointer-events:none;background:radial-gradient(circle,color-mix(in srgb,var(--ouro),transparent 85%),transparent 65%)}
+.topo>*{position:relative;z-index:1}
+.kicker{font-family:var(--display);font-size:12px;letter-spacing:.36em;text-transform:uppercase;color:var(--acc);margin:0 0 12px}
+.topo h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,7vw,60px);line-height:1.05;margin:0 auto;max-width:16ch;text-wrap:balance}
+.regua{width:54px;height:2px;margin:20px auto;background:linear-gradient(90deg,transparent,var(--ouro),transparent)}
+.lede{color:var(--mut);max-width:46ch;margin:0 auto}
+.olho{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--acc);margin:40px 0 16px}
+.olho::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.lista{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px;padding-bottom:30px}
+.card{display:flex;flex-direction:column;text-decoration:none;color:inherit;background:var(--bg2);border:1px solid var(--line);border-radius:22px;overflow:hidden;transition:.2s;box-shadow:0 10px 30px #0000000f}
+.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--ouro),transparent 40%);box-shadow:var(--sombra)}
+.foto{position:relative;aspect-ratio:4/3;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--ouro),transparent 70%),transparent 55%),linear-gradient(160deg,#1b2747,#070C17);display:grid;place-items:center}
+.foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.foto svg{width:34%}
+.chip{position:absolute;top:12px;left:12px;background:#000a;color:#fff;backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.chip.vivo::before{content:"";display:inline-block;width:7px;height:7px;background:#3ee07f;border-radius:50%;margin-right:6px}
+.corpo{padding:18px;display:flex;flex-direction:column;gap:10px;flex:1}
+.corpo h3{font-family:var(--display);font-size:20px;margin:0;line-height:1.2}
+.linha{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:var(--mut)}
+.linha b{font-family:var(--display);font-size:22px;color:var(--acc)}
+.trilho{height:8px;background:var(--bg3);border-radius:8px;overflow:hidden}
+.trilho i{display:block;height:100%;background:linear-gradient(90deg,var(--ouro-dk),var(--ouro),var(--ouro-lt));border-radius:8px}
+.card .btn-ouro{margin-top:auto;text-align:center;padding:12px}
+.ganhou{font-size:13px;font-weight:800;color:var(--acc)}
+.vazio{text-align:center;color:var(--mut);padding:40px;border:1px dashed var(--line);border-radius:20px}
+.como{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding-bottom:50px}
+.como div{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:18px}
+.como b{display:block;font-family:var(--display);font-size:17px;margin:6px 0 4px}
+.como span{font-size:26px}.como p{margin:0;color:var(--mut);font-size:14px}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;text-align:center;color:var(--mut);font-size:13px}
+footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="marca" href="index.html"><span class="selo" id="logo">⚔</span><b id="nomeSite"></b></a>
+  <button class="btn-g icone" onclick="alternarTema()" title="Modo claro/escuro" aria-label="Alternar modo claro e escuro">◐</button>
+  <a class="btn-g" href="minha-conta.html" style="text-decoration:none">🎟 <span>Meus números</span></a>
+</div></header>
+
+<section class="topo"><div class="wrap">
+  <p class="kicker">Sorteio pela Loteria Federal</p>
+  <h1 class="ouro-txt" id="slogan"></h1>
+  <div class="regua"></div>
+  <p class="lede">Escolha uma rifa, garanta seus números pelo Pix e acompanhe o resultado oficial da Caixa.</p>
+</div></section>
+
+<div class="wrap">
+  <p class="olho">Rifas abertas</p>
+  <div class="lista" id="abertas"><div class="vazio">Carregando…</div></div>
+  <div id="blocoEnc" hidden><p class="olho">Finalizadas</p><div class="lista" id="encerradas"></div></div>
+  <p class="olho">Como funciona</p>
+  <div class="como">
+    <div><span>🎟</span><b>Escolha seus números</b><p>Quanto mais números, mais chances. Eles são sorteados aleatoriamente para você.</p></div>
+    <div><span>⚡</span><b>Pague pelo Pix</b><p>Confirmação automática. Seus números ficam garantidos na hora.</p></div>
+    <div><span>🎲</span><b>Loteria Federal</b><p>Ao vender 100%, o ganhador sai pelo resultado oficial da Caixa. Ninguém manipula.</p></div>
+    <div><span>🏆</span><b>Receba o prêmio</b><p>Entrega com vídeo publicado nas nossas redes.</p></div>
+  </div>
+</div>
+<footer><b id="nomeRodape"></b><br>Ação autorizada · Certificado nº <span id="cert"></span><br>Proibida a participação de menores de 18 anos.</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="shared.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const ESCUDO='<svg viewBox="0 0 100 120" aria-hidden="true"><path d="M50 4 L92 18 V58 C92 86 72 106 50 116 C28 106 8 86 8 58 V18 Z" fill="#0C1426" stroke="#E2B458" stroke-width="4"/><path d="M50 22 L54 70 L50 78 L46 70 Z" fill="#E2B458"/><rect x="36" y="66" width="28" height="5" rx="2" fill="#E2B458"/></svg>';
+function card(c){
+  const pct=Math.min(100,c.vendidos/c.total*100), img=safeUrl((c.galeria||[])[0]||c.imagem);
+  const enc=c.status==='encerrada', esg=!enc&&c.vendidos>=c.total;
+  return `<a class="card" href="rifa.html?c=${encodeURIComponent(c.id)}">
+    <div class="foto">${img?`<img src="${esc(img)}" alt="" loading="lazy">`:ESCUDO}<span class="chip ${enc||esg?'':'vivo'}">${enc?'Finalizada':esg?'Esgotada':'Vendas abertas'}</span></div>
+    <div class="corpo"><h3>${esc(c.titulo)}</h3>
+      <div class="linha"><span>Cada número</span><b>${brl(c.preco)}</b></div>
+      <div class="trilho"><i style="width:${Math.max(pct,2)}%"></i></div>
+      <div class="linha" style="font-size:13px"><span>${pct.toFixed(0)}% vendido</span><span>${c.total-c.vendidos} restantes</span></div>
+      ${enc&&c.resultado?`<div class="ganhou">🏆 Ganhador: nº ${fmtNum(+c.resultado.numero,c.total)} — ${esc(c.resultado.nome)}</div>`:''}
+      <span class="btn-ouro">${enc?'Ver resultado':'Participar'}</span></div></a>`;
+}
+(async()=>{
+  const site=await api.site(); aplicarTema(site);
+  $('nomeSite').textContent=$('nomeRodape').textContent=site.nomeSite; document.title=site.nomeSite;
+  $('slogan').textContent=site.slogan; $('cert').textContent=site.certificado;
+  if(safeUrl(site.logo)) $('logo').innerHTML=`<img src="${esc(site.logo)}" alt="">`;
+  try{
+    const cs=await api.campanhas();
+    const ab=cs.filter(c=>c.status==='ativa'), en=cs.filter(c=>c.status==='encerrada');
+    if(!api.online && ab.length===1){ location.replace('rifa.html'); return; }
+    $('abertas').innerHTML=ab.length?ab.map(card).join(''):'<div class="vazio">Nenhuma rifa aberta agora. Volte em breve! ⚔</div>';
+    $('blocoEnc').hidden=!en.length; $('encerradas').innerHTML=en.map(card).join('');
+  }catch(e){ $('abertas').innerHTML='<div class="vazio">Não foi possível carregar as rifas.</div>'; console.error(e); }
+})();
+</script>
+</body>
+</html>
