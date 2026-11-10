@@ -297,7 +297,7 @@ async function reservar(){
       .catch(e=>{ $('payBox').innerHTML=`<p class="erro">${esc(e.message)}</p><a class="btn-g" href="minha-conta.html">Tentar pela área do cliente</a>`; });
     let t=900; timer=setInterval(()=>{ t--; const e=$('tm'); if(e) e.textContent=`${String(t/60|0).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`; if(t<=0) clearInterval(timer); },1000);
     nums=await api.numeros(camp); render();
-  }catch(e){ $('erro').textContent=e.message; $('btRes').disabled=false; }
+  }catch(e){ console.error(e); if($('erro')){ $('erro').textContent=e.message; $('btRes').disabled=false; } }
 }
 async function pagarDemo(id){ api.pagarDemo(id); await carregar();
   modal(`<h2>Pagamento confirmado! 🍀</h2><p class="mut">Seus números estão garantidos. Consulte quando quiser em "Meus números".</p><button class="btn-ouro" onclick="fechar()">Fechar</button>`); }

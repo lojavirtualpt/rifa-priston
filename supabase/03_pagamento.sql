@@ -51,3 +51,9 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke execute on function public.meus_todos(text) from public;
 grant execute on function public.meus_todos(text) to anon, authenticated;
+
+-- a função do servidor (service_role) precisa ler/gravar pedidos
+grant usage on schema public to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
