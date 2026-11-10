@@ -53,6 +53,7 @@ h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 6px}
     <button class="btn-ouro" onclick="buscar()">🔍 Buscar minhas reservas</button>
     <div class="erro" id="erro"></div>
   </div>
+  <div id="aviso"></div>
   <div id="saida"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -62,6 +63,17 @@ h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 6px}
 const $=id=>document.getElementById(id);
 (async()=>{ const s=await api.site(); aplicarTema(s); $('nomeSite').textContent=s.nomeSite;
   if(safeUrl(s.logo)) $('logo').innerHTML=`<img src="${esc(s.logo)}" alt="">`;
+  // voltou da InfinitePay: confere o pagamento na hora (o aviso automático também chega pelo servidor)
+  const qs=new URLSearchParams(location.search);
+  if(api.online && qs.get('order_nsu') && qs.get('transaction_nsu')){
+    $('saida').innerHTML='<div class="vazio">Confirmando seu pagamento…</div>';
+    try{ const r=await api.confirmarRetorno({order_nsu:qs.get('order_nsu'),transaction_nsu:qs.get('transaction_nsu'),slug:qs.get('slug'),receipt_url:qs.get('receipt_url')});
+      $('erro').textContent=''; if(r.pago) $('aviso').innerHTML='<div class="res ok" style="margin-bottom:14px">✅ Pagamento confirmado! Seus números estão garantidos. Boa sorte! 🍀</div>';
+      else if(r.status==='reembolsar') $('aviso').innerHTML='<div class="res" style="margin-bottom:14px">⚠ Seu pagamento chegou depois que a reserva expirou e os números já foram para outra pessoa. Vamos devolver o valor — fale conosco pelo WhatsApp.</div>';
+      else $('aviso').innerHTML='<div class="res" style="margin-bottom:14px">⏳ Ainda não recebemos a confirmação. Ela pode levar alguns instantes — atualize a página em seguida.</div>';
+    }catch(e){ console.error(e); }
+    history.replaceState(null,'',location.pathname);
+  }
   let w=''; try{ w=localStorage.getItem('rifa_whats')||''; }catch{} if(w){ $('whats').value=w; buscar(); } })();
 async function buscar(){
   const w=$('whats').value.replace(/\D/g,''); $('erro').textContent='';
@@ -79,12 +91,17 @@ async function buscar(){
       const r=c.resultado, meus=ps.filter(p=>p.status==='pago').flatMap(p=>p.numeros), ganhei=r&&meus.includes(+r.numero), img=safeUrl(c.imagem);
       return `<div class="rifa"><div class="cab"><a class="mini" href="rifa.html?c=${encodeURIComponent(c.id)}">${img?`<img src="${esc(img)}" alt="">`:'🛡'}</a>
         <div><a href="rifa.html?c=${encodeURIComponent(c.id)}"><h3>${esc(c.titulo)}</h3></a></div></div>
-        ${ps.map(p=>`<div style="margin-top:12px"><span class="st ${p.status==='pago'?'pago':'aguardando'}">${p.status==='pago'?'✅ Pago':'⏳ Aguardando pagamento'}</span> <small class="mut">${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} · ${brl(p.valor)}</small>
-          <div class="nums">${p.numeros.slice().sort((a,b)=>a-b).map(n=>`<b class="${r&&+r.numero===n?'win':''}">${fmtNum(n,c.total)}</b>`).join('')}</div></div>`).join('')}
+        ${ps.map(p=>{ const vivo=p.status==='aguardando'&&(!p.expira_em||new Date(p.expira_em)>new Date());
+          const rot=p.status==='pago'?'✅ Pago':p.status==='reembolsar'?'↩ Reembolso pendente':vivo?'⏳ Aguardando pagamento':'⌛ Reserva expirada';
+          return `<div style="margin-top:12px"><span class="st ${p.status==='pago'?'pago':'aguardando'}">${rot}</span> <small class="mut">${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} · ${brl(p.valor)}</small>
+          <div class="nums">${p.numeros.slice().sort((a,b)=>a-b).map(n=>`<b class="${r&&+r.numero===n?'win':''}">${fmtNum(n,c.total)}</b>`).join('')}</div>
+          ${vivo&&api.online?`<button class="btn-ouro" style="margin-top:10px" onclick="pagar(this,'${esc(p.id)}')">💳 Pagar agora — ${brl(p.valor)}</button>`:''}</div>`;}).join('')}
         ${r?`<div class="res ${ganhei?'ok':''}">${ganhei?'🏆 VOCÊ GANHOU! Entraremos em contato pelo WhatsApp.':`Resultado: nº ${fmtNum(+r.numero,c.total)} (${+r.premio}º prêmio da Federal). Não foi dessa vez!`}</div>`:c.status==='ativa'?'<div class="res">🎲 Sorteio pela Loteria Federal ao atingir 100% das vendas.</div>':''}
       </div>`;}).join('');
   }catch(e){ $('saida').innerHTML=''; $('erro').textContent='Não foi possível buscar agora. Tente de novo.'; console.error(e); }
 }
+async function pagar(bt,id){ bt.disabled=true; bt.textContent='Abrindo pagamento…';
+  try{ const u=safeUrl(await api.pagar(id)); if(u) location.href=u; }catch(e){ bt.disabled=false; bt.textContent=e.message; } }
 </script>
 </body>
 </html>

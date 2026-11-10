@@ -220,7 +220,7 @@ const livres=()=>camp.total-Object.keys(nums).length;
 // brasas flutuando
 $('brasas').innerHTML=Array.from({length:18},()=>`<i style="left:${Math.random()*100}%;--dx:${(Math.random()*120-60)|0}px;animation-duration:${8+Math.random()*10}s;animation-delay:${-Math.random()*15}s"></i>`).join('');
 
-function setQ(v){ const max=Math.max(1,livres()); q=Math.max(1,Math.min(max,v||1)); $('q').value=q; $('total').textContent=brl(q*camp.preco); $('btComprar').textContent=`${site.ctaTexto||'Reservar'} por ${brl(q*camp.preco)}`; }
+function setQ(v){ const max=Math.max(1,livres()), min=Math.min(max,Math.ceil(1/camp.preco)); q=Math.max(min,Math.min(max,v||min)); $('q').value=q; $('total').textContent=brl(q*camp.preco); $('btComprar').textContent=`${site.ctaTexto||'Reservar'} por ${brl(q*camp.preco)}`; }
 
 async function carregar(){
   site=await api.site(); aplicarTema(site);
@@ -287,12 +287,14 @@ async function reservar(){
   $('btRes').disabled=true;
   try{
     const r=await api.reservar(camp,q,nome,whats);
-    modal(`<h2>Pague com Pix</h2><p class="mut" style="margin:0">Reserva expira em <span class="tempo" id="tm">15:00</span></p>
-    <div class="pix"><div class="qr"></div><p class="mut" style="font-family:monospace;font-size:12px;word-break:break-all">00020126580014BR.GOV.BCB.PIX…</p>
-    <button class="btn-g" onclick="navigator.clipboard?.writeText('pix-simulado');this.textContent='Copiado ✔'">Copiar código Pix</button></div>
-    <p style="margin:0">Total <b>${brl(r.valor)}</b> · seus números (liberados após o pagamento):</p>
+    modal(`<h2>Reserva feita! 🎟</h2><p class="mut" style="margin:0">Pague em até <span class="tempo" id="tm">15:00</span> para garantir seus números.</p>
+    <p style="margin:14px 0 0">Total <b>${brl(r.valor)}</b> · seus números (liberados após o pagamento):</p>
     <div class="nums">${r.numeros.slice().sort((a,b)=>a-b).map(n=>`<b>${fmtNum(n,camp.total)}</b>`).join('')}</div>
-    ${api.online?'<p class="mut" style="font-size:13px">A confirmação chega sozinha assim que o Pix cair.</p>':`<button class="btn-ouro" onclick="pagarDemo('${esc(r.pedido)}')">✔ Simular pagamento (demo)</button>`}`);
+    ${api.online?`<div id="payBox"><button class="btn-ouro" disabled>Gerando pagamento…</button></div>
+      <p class="mut" style="font-size:13px;text-align:center">Pix ou cartão pela <b>InfinitePay</b>. A confirmação é automática.</p>`
+      :`<button class="btn-ouro" onclick="pagarDemo('${esc(r.pedido)}')">✔ Simular pagamento (demo)</button>`}`);
+    if(api.online) api.pagar(r.pedido).then(url=>{ $('payBox').innerHTML=`<a class="btn-ouro" style="display:block;text-align:center;text-decoration:none" href="${esc(safeUrl(url))}">💳 Pagar agora — ${brl(r.valor)}</a>`; })
+      .catch(e=>{ $('payBox').innerHTML=`<p class="erro">${esc(e.message)}</p><a class="btn-g" href="minha-conta.html">Tentar pela área do cliente</a>`; });
     let t=900; timer=setInterval(()=>{ t--; const e=$('tm'); if(e) e.textContent=`${String(t/60|0).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`; if(t<=0) clearInterval(timer); },1000);
     nums=await api.numeros(camp); render();
   }catch(e){ $('erro').textContent=e.message; $('btRes').disabled=false; }

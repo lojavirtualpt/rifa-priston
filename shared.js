@@ -91,7 +91,7 @@ const api = {
   async meusTodos(whats) {
     whats = whats.replace(/\D/g, '');
     if (ONLINE) { const { data, error } = await sb.rpc('meus_todos', { p_whats: whats }); if (error) throw error;
-      return data.map(r => ({ campanha: { id: r.campanha_id, titulo: r.titulo, imagem: r.imagem, total: r.total, status: r.status_campanha, resultado: r.resultado }, id: r.pedido, status: r.status, numeros: r.numeros, valor: +r.valor, created_at: r.created_at })); }
+      return data.map(r => ({ campanha: { id: r.campanha_id, titulo: r.titulo, imagem: r.imagem, total: r.total, status: r.status_campanha, resultado: r.resultado }, id: r.pedido, status: r.status, numeros: r.numeros, valor: +r.valor, created_at: r.created_at, checkout_url: r.checkout_url, expira_em: r.expira_em })); }
     const s = dLoad(); return s.pedidos.filter(p => p.whats === whats && p.status !== 'expirado').map(p => ({ ...p, campanha: s.campanha }));
   },
   async listarCampanhas() { // admin: inclui rascunhos
@@ -130,6 +130,14 @@ const api = {
     const rk = {}; dLoad().pedidos.filter(p => p.status === 'pago').forEach(p => { const k = p.nome.split(' ')[0]; rk[k] = (rk[k] || 0) + p.numeros.length; });
     return Object.entries(rk).map(([nome, qtd]) => ({ nome, qtd })).sort((a, b) => b.qtd - a.qtd).slice(0, 3);
   },
+  // pagamento InfinitePay (função no servidor)
+  async _fn(qs, body) {
+    const r = await fetch(`${CFG.url}/functions/v1/pagamento${qs}`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: CFG.anonKey, Authorization: 'Bearer ' + CFG.anonKey }, body: JSON.stringify(body) });
+    const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error || 'Falha no pagamento'); return d;
+  },
+  async pagar(pedido) { return (await api._fn('?acao=criar', { pedido })).url; },
+  async confirmarRetorno(p) { return api._fn('', p); },
   // só existe no modo demo — em produção quem confirma é o webhook do Pix
   pagarDemo(id) { const s = dLoad(); const p = s.pedidos.find(x => x.id === id); if (!p) return; p.status = 'pago'; p.numeros.forEach(n => s.numeros[n].pago = true); dSave(s); },
 

@@ -45,6 +45,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
 .st.pago{background:color-mix(in srgb,var(--verde),transparent 80%);color:var(--verde)}
 .st.aguardando{background:color-mix(in srgb,var(--ouro),transparent 80%);color:var(--acc)}
 .st.expirado{background:var(--bg3);color:var(--mut)}
+.st.reembolsar{background:color-mix(in srgb,var(--alerta),transparent 80%);color:var(--alerta)}
 .toast{position:fixed;bottom:20px;left:50%;translate:-50% 0;background:var(--txt);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:50}
 .toast.on{opacity:1}
 .qr{background:#fff;padding:10px;border-radius:12px;width:200px;margin:12px auto}
@@ -149,7 +150,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
         <section data-sec="pedidos" hidden>
           <div class="card"><h2>Pedidos</h2><p class="mut">Em produção, o pagamento é confirmado automaticamente pelo webhook do Pix. O botão abaixo é para casos manuais.</p>
             <div class="g2" style="align-items:end"><div><label>Buscar (nome, telefone ou número)</label><input id="fBusca" oninput="pedidos()"></div>
-              <div><label>Status</label><select id="fStatus" onchange="pedidos()"><option value="">Todos</option><option value="pago">Pagos</option><option value="aguardando">Aguardando</option><option value="expirado">Expirados</option></select></div>
+              <div><label>Status</label><select id="fStatus" onchange="pedidos()"><option value="">Todos</option><option value="pago">Pagos</option><option value="aguardando">Aguardando</option><option value="expirado">Expirados</option><option value="reembolsar">Reembolsar</option></select></div>
               <div><button class="btn-g" onclick="csv()" style="margin-bottom:2px">⬇ Exportar CSV</button></div></div>
             <div style="overflow:auto;margin-top:12px"><table id="ped"></table></div>
             <button class="btn-g" id="btZerar" hidden onclick="zerar()">Zerar vendas (só demo)</button></div>
@@ -306,7 +307,7 @@ async function pedidos(){
   PEDS.forEach(p=>{ if(p.status==='aguardando'&&p.expira_em&&new Date(p.expira_em)<new Date()) p.status='expirado'; });
   const b=$('fBusca').value.trim().toLowerCase(), f=$('fStatus').value, bn=b.replace(/\D/g,'');
   const ps=PEDS.filter(p=>(!f||p.status===f)&&(!b||p.nome.toLowerCase().includes(b)||(bn&&p.whats.includes(bn))||(bn&&p.numeros.includes(+bn))));
-  $('ped').innerHTML='<tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Números</th><th>Valor</th><th>Status</th><th></th></tr>'+(ps.length?ps.map(p=>`<tr><td>${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td><a href="${zap(p.whats)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(p.whats)}</a></td><td title="${p.numeros.map(n=>fmtNum(n,camp.total)).join(', ')}">${p.numeros.length} <small class="mut">(${p.numeros.slice(0,4).map(n=>fmtNum(n,camp.total)).join(', ')}${p.numeros.length>4?'…':''})</small></td><td>${brl(p.valor)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span></td><td>${p.status==='aguardando'?`<button class="btn-g" onclick="confirmar('${esc(p.id)}')">Confirmar</button>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="mut">Nenhum pedido.</td></tr>');
+  $('ped').innerHTML='<tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Números</th><th>Valor</th><th>Status</th><th></th></tr>'+(ps.length?ps.map(p=>`<tr><td>${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td><a href="${zap(p.whats)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(p.whats)}</a></td><td title="${p.numeros.map(n=>fmtNum(n,camp.total)).join(', ')}">${p.numeros.length} <small class="mut">(${p.numeros.slice(0,4).map(n=>fmtNum(n,camp.total)).join(', ')}${p.numeros.length>4?'…':''})</small></td><td>${brl(p.valor)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span>${p.metodo?` <small class="mut">${esc(p.metodo)}</small>`:''}${safeUrl(p.receipt_url)?` <a href="${esc(p.receipt_url)}" target="_blank" rel="noopener" style="color:var(--acc)">recibo</a>`:''}</td><td>${p.status==='aguardando'?`<button class="btn-g" onclick="confirmar('${esc(p.id)}')">Confirmar</button>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="mut">Nenhum pedido.</td></tr>');
   // compradores agrupados
   const g={}; PEDS.filter(p=>p.status==='pago').forEach(p=>{ const k=p.whats; (g[k]=g[k]||{nome:p.nome,whats:k,qtd:0,valor:0,nums:[]}); g[k].qtd+=p.numeros.length; g[k].valor+=+p.valor; g[k].nums.push(...p.numeros); });
   const cs=Object.values(g).sort((a,b)=>b.qtd-a.qtd);
