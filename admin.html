@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://servicebus2.caixa.gov.br; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Painel da Rifa</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -177,7 +177,12 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
         </section>
 
         <section data-sec="resultado" hidden>
-          <div class="card"><h2>Apurar pela Loteria Federal</h2><p class="mut">Digite os 5 prêmios do concurso (confira em loterias.caixa.gov.br).</p>
+          <div class="card"><h2>Apurar pela Loteria Federal</h2><p class="mut">Busque o resultado direto da Caixa ou digite os 5 prêmios. Nada é publicado até você confirmar.</p>
+            <div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:6px">
+              <div style="flex:0 0 180px"><label>Nº do concurso</label><input id="fedConcurso" inputmode="numeric" placeholder="ex: 6117"></div>
+              <button class="btn-g" id="btFed" onclick="buscarFederal()">🔎 Buscar resultado na Caixa</button>
+            </div>
+            <div id="fedInfo" class="mut" style="font-size:14px;min-height:20px"></div>
             <div class="g2" id="premios"></div>
             <button class="btn-ouro" style="margin-top:16px" onclick="apurar()">Apurar e publicar ganhador</button><div id="res" style="margin-top:14px"></div></div>
         </section>
@@ -246,6 +251,7 @@ async function abrirPainel(){
   const cs=await listaCamps();
   camp=cs[0]||VAZIA();
   preencherCamp(); preencherSite(); await resumo(); await pedidos();
+  setTimeout(()=>{ if($('fedConcurso')&&camp.concurso) $('fedConcurso').value=camp.concurso; },0);
   $('premios').innerHTML=[1,2,3,4,5].map(i=>`<div><label>${i}º prêmio</label><input id="p${i}" inputmode="numeric" maxlength="6"></div>`).join('');
 }
 $('abas').onclick=e=>{const b=e.target.closest('button'); if(!b) return;
@@ -339,6 +345,23 @@ function csv(){
 }
 async function confirmar(id){ if(!confirm('Confirmar pagamento deste pedido?')) return; try{ await api.confirmar(id); toast('Pago ✔'); pedidos(); }catch(e){ toast(e.message); } }
 async function zerar(){ if(confirm('Zerar todas as vendas da demonstração?')){ await api.zerarDemo(); camp=await api.adminCampanha(); pedidos(); resumo(); } }
+async function buscarFederal(){
+  const n=$('fedConcurso').value.replace(/\D/g,''); const bt=$('btFed');
+  if(!n) return $('fedInfo').textContent='Digite o número do concurso.';
+  bt.disabled=true; $('fedInfo').textContent='Buscando na Caixa…';
+  try{
+    const r=await fetch('https://servicebus2.caixa.gov.br/portaldeloterias/api/federal/'+n);
+    if(!r.ok) throw new Error('Concurso não encontrado (talvez ainda não tenha sido sorteado).');
+    const d=await r.json(); const pr=d.dezenasSorteadasOrdemSorteio||d.listaDezenas||[];
+    if(String(d.numero)!==n||pr.length<5) throw new Error('Resultado ainda não disponível para o concurso '+n+'.');
+    pr.slice(0,5).forEach((v,i)=>$('p'+(i+1)).value=v);
+    let aviso='';
+    const [dd,mm,aa]=(d.dataApuracao||'').split('/'); const dataSorteio=dd?new Date(+aa,mm-1,+dd,19):null;
+    if(dataSorteio&&camp?.dataLimite&&dataSorteio<new Date(camp.dataLimite)) aviso=' ⚠ ATENÇÃO: este sorteio aconteceu ANTES da data limite de vendas desta rifa. Use um concurso posterior ao encerramento.';
+    $('fedInfo').innerHTML=`✅ Concurso <b>${esc(d.numero)}</b> de ${esc(d.dataApuracao)} carregado. Confira os prêmios e clique em <b>Apurar</b>.`+(aviso?`<br><b style="color:var(--alerta)">${aviso}</b>`:'');
+  }catch(e){ $('fedInfo').innerHTML=`<span style="color:var(--alerta)">${esc(e.message)}</span>`; }
+  bt.disabled=false;
+}
 async function apurar(){
   const pr=[1,2,3,4,5].map(i=>$('p'+i).value.trim());
   const w=apurarNumero(camp.total, await api.numeros(camp), pr);
