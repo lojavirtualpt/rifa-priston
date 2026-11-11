@@ -6,7 +6,10 @@ const sb = ONLINE ? window.supabase.createClient(CFG.url, CFG.anonKey) : null;
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const safeUrl = u => /^(https:\/\/|data:image\/(png|jpe?g|webp);base64,)/i.test(u || '') ? u : '';
 const digitos = total => String(total - 1).length;
-const fmtNum = (n, total) => String(n).padStart(digitos(total), '0');
+// Números exibidos de 0001 até o total: o final "0000" da Federal aparece como o último número (ex.: 10000).
+const fmtNum = (n, total) => (+n === 0 ? String(total) : String(n).padStart(digitos(total), '0'));
+// converte o que o usuário digitou (ex.: 10000) de volta para o número interno (0)
+const numInterno = (v, total) => { v = parseInt(v, 10); return v === total ? 0 : v; };
 const brl = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const SITE_PADRAO = {

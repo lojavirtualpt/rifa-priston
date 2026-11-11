@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <title>Painel da Rifa</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794408766">
+<link rel="stylesheet" href="theme.css?v=1794409109">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 .auth{max-width:420px;margin:8vh auto;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--sombra)}
@@ -188,8 +188,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794408766"></script>
-<script src="shared.js?v=1794408766"></script>
+<script src="config.js?v=1794409109"></script>
+<script src="shared.js?v=1794409109"></script>
 <script>
 const $=id=>document.getElementById(id);
 let camp=null, site=null, fator=null, tentativas=0;
@@ -323,7 +323,7 @@ async function pedidos(){
   // vencidos aparecem como expirados mesmo antes da limpeza automática
   PEDS.forEach(p=>{ if(p.status==='aguardando'&&p.expira_em&&new Date(p.expira_em)<new Date()) p.status='expirado'; });
   const b=$('fBusca').value.trim().toLowerCase(), f=$('fStatus').value, bn=b.replace(/\D/g,'');
-  const ps=PEDS.filter(p=>(!f||p.status===f)&&(!b||p.nome.toLowerCase().includes(b)||(bn&&p.whats.includes(bn))||(bn&&p.numeros.includes(+bn))));
+  const ps=PEDS.filter(p=>(!f||p.status===f)&&(!b||p.nome.toLowerCase().includes(b)||(bn&&p.whats.includes(bn))||(bn&&p.numeros.includes(numInterno(bn,camp.total)))));
   $('ped').innerHTML='<tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Números</th><th>Valor</th><th>Status</th><th></th></tr>'+(ps.length?ps.map(p=>`<tr><td>${new Date(p.created_at).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</td><td>${esc(p.nome)}</td><td><a href="${zap(p.whats)}" target="_blank" rel="noopener" style="color:var(--acc)">${esc(p.whats)}</a></td><td title="${p.numeros.map(n=>fmtNum(n,camp.total)).join(', ')}">${p.numeros.length} <small class="mut">(${p.numeros.slice(0,4).map(n=>fmtNum(n,camp.total)).join(', ')}${p.numeros.length>4?'…':''})</small></td><td>${brl(p.valor)}</td><td><span class="st ${esc(p.status)}">${esc(p.status)}</span>${p.metodo?` <small class="mut">${esc(p.metodo)}</small>`:''}${safeUrl(p.receipt_url)?` <a href="${esc(p.receipt_url)}" target="_blank" rel="noopener" style="color:var(--acc)">recibo</a>`:''}</td><td>${p.status==='aguardando'?`<button class="btn-g" onclick="confirmar('${esc(p.id)}')">Confirmar</button>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="mut">Nenhum pedido.</td></tr>');
   // compradores agrupados
   const g={}; PEDS.filter(p=>p.status==='pago').forEach(p=>{ const k=p.whats; (g[k]=g[k]||{nome:p.nome,whats:k,qtd:0,valor:0,nums:[]}); g[k].qtd+=p.numeros.length; g[k].valor+=+p.valor; g[k].nums.push(...p.numeros); });

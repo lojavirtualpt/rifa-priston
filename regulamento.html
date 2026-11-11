@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Regulamento</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794408766">
+<link rel="stylesheet" href="theme.css?v=1794409109">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 .doc{max-width:780px;margin:36px auto 50px}
@@ -53,6 +53,7 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
   <ul>
     <li>O ganhador é definido pelo resultado oficial da <b>Loteria Federal da Caixa</b>, no concurso informado na página de cada rifa.</li>
     <li>Ganha quem tiver os <b>últimos dígitos do 1º prêmio</b> (3 dígitos para rifas de 1.000 números, 4 para 10.000, e assim por diante).</li>
+    <li>Os números vão de 0001 até o total da rifa. Quando os últimos dígitos do prêmio forem todos zero (ex.: final 0000), o ganhador é o <b>último número</b> (ex.: 10000).</li>
     <li>Se esse número não estiver pago, vale o 2º prêmio, depois o 3º, o 4º e o 5º.</li>
     <li id="desempate"></li>
     <li id="naoVendido"></li>
@@ -78,8 +79,8 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
 <footer id="rodape"></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794408766"></script>
-<script src="shared.js?v=1794408766"></script>
+<script src="config.js?v=1794409109"></script>
+<script src="shared.js?v=1794409109"></script>
 <script>
 const $=id=>document.getElementById(id);
 const dt=d=>d?new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):null;
@@ -101,7 +102,7 @@ const dt=d=>d?new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'s
   try{
     const cs=(await api.campanhas()).filter(c=>c.status==='ativa');
     $('campanhas').innerHTML=cs.length?cs.map(c=>`<div class="cx"><h3>${esc(c.titulo)}</h3><dl class="ficha">
-      ${linha('Números',`${c.total.toLocaleString('pt-BR')} (${fmtNum(0,c.total)} a ${fmtNum(c.total-1,c.total)})`)}
+      ${linha('Números',`${c.total.toLocaleString('pt-BR')} (${fmtNum(1,c.total)} a ${fmtNum(0,c.total)})`)}
       ${linha('Valor por número',brl(c.preco))}
       ${Number(c.valorMercado)>0?linha('Valor do prêmio',brl(c.valorMercado)):''}
       ${linha('Vendas até',dt(c.dataLimite)||'<span class="mut">a definir</span>')}

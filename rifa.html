@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Rifa Priston</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794408766">
+<link rel="stylesheet" href="theme.css?v=1794409109">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 /* ----- abertura com cenário ----- */
@@ -212,8 +212,8 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
 <div class="modal" id="modal" onclick="if(event.target===this)fechar()"><div class="mb" id="mbox" role="dialog" aria-modal="true"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794408766"></script>
-<script src="shared.js?v=1794408766"></script>
+<script src="config.js?v=1794409109"></script>
+<script src="shared.js?v=1794409109"></script>
 <script>
 const $=id=>document.getElementById(id);
 let site, camp, nums={}, q=1, timer, fotoAtual=0;
@@ -248,7 +248,7 @@ function render(){
   $('pilMercado').parentElement.style.gridTemplateColumns=temValor?'':'1fr 1fr';
   const v=Object.keys(nums).length, pct=v/camp.total*100;
   $('barra').style.width=Math.max(pct,2)+'%'; $('pct').textContent=pct.toFixed(1).replace('.',',')+'%'; $('restam').textContent=`${camp.total-v} restantes`;
-  $('faixa').textContent=`${fmtNum(0,camp.total)} a ${fmtNum(camp.total-1,camp.total)}`; $('dig').textContent=digitos(camp.total);
+  $('faixa').textContent=`${fmtNum(1,camp.total)} a ${fmtNum(0,camp.total)}`; $('dig').textContent=digitos(camp.total);
   $('concurso').textContent=camp.concurso?`📅 Concurso da Federal nº ${camp.concurso} — ${camp.dataSorteio}`:'📅 O concurso será anunciado ao atingir 100%.';
   // galeria
   const g=(camp.galeria||[]).map(safeUrl).filter(Boolean);
@@ -259,7 +259,7 @@ function render(){
   $('pacotes').style.gridTemplateColumns=`repeat(${pk.length||1},1fr)`;
   $('pacotes').innerHTML=pk.map((p,i)=>`<button class="${i===pk.length-1?'hot':''}" onclick="setQ(q+${+p})">+${+p}<small>${brl(p*camp.preco)}</small></button>`).join('');
   // grade
-  let gr=''; for(let i=0;i<camp.total&&i<10000;i++) gr+=`<span class="${nums[i]?'v':''}">${fmtNum(i,camp.total)}</span>`; $('grade').innerHTML=gr;
+  let gr=''; for(let k=1;k<=camp.total&&k<=10000;k++){ const i=k%camp.total; gr+=`<span class="${nums[i]?'v':''}">${fmtNum(i,camp.total)}</span>`; } $('grade').innerHTML=gr;
   // cotas
   const ct=camp.cotas||[]; $('cxCotas').hidden=!ct.length;
   $('cotas').innerHTML=ct.map(c=>{const saiu=nums[c.n]&&nums[c.n].pago;return `<div class="linha"><span><span class="nn">${fmtNum(+c.n,camp.total)}</span>${esc(c.premio)}</span><span class="${saiu?'fora':'ok'}">${saiu?'Já saiu':'Disponível'}</span></div>`}).join('');
