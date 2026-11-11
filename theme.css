@@ -45,3 +45,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn-ouro{border:0;border-radius:999px;padding:14px 22px;font-weight:800;cursor:pointer;background:linear-gradient(180deg,var(--ouro-lt),var(--ouro));color:#1a1204;box-shadow:0 10px 26px color-mix(in srgb,var(--ouro),transparent 70%);transition:.18s}
 .btn-ouro:hover{transform:translateY(-2px);filter:brightness(1.05)}
 .btn-ouro:disabled{opacity:.5;cursor:wait;transform:none}
+
+#rodape .links a{color:var(--acc);text-decoration:none;font-weight:700}
+#rodape .links a:hover{text-decoration:underline}

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Regulamento</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css?v=1794408766">
+<link rel="icon" href="logo-p.svg" type="image/svg+xml">
+<style>
+.doc{max-width:780px;margin:36px auto 50px}
+h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 6px}
+h2{font-family:var(--display);font-size:21px;margin:30px 0 8px;letter-spacing:.02em}
+.doc p,.doc li{color:var(--mut);line-height:1.65}
+.doc b{color:var(--txt)}
+.cx{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:14px}
+.cx h3{font-family:var(--display);font-size:18px;margin:0 0 8px;color:var(--txt)}
+.ficha{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:15px}
+.ficha dt{color:var(--mut)}.ficha dd{margin:0;font-weight:700}
+.aviso{border-left:3px solid var(--alerta);padding:10px 14px;background:color-mix(in srgb,var(--alerta),transparent 90%);border-radius:0 12px 12px 0;color:var(--txt)}
+footer{border-top:1px solid var(--line);padding:30px 0 40px;text-align:center;color:var(--mut);font-size:13px}
+footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+</style>
+</head>
+<body>
+<header class="bar"><div class="wrap">
+  <a class="marca" href="index.html"><span class="selo" id="logo"><img src="logo-p.svg" alt="P"></span><b id="nomeSite"></b></a>
+  <a class="btn-g" href="index.html" style="text-decoration:none">← Rifas</a>
+  <button class="btn-g icone" onclick="alternarTema()" title="Modo claro/escuro" aria-label="Alternar modo claro e escuro">◐</button>
+</div></header>
+
+<div class="wrap doc">
+  <h1 class="ouro-txt">Regulamento</h1>
+  <p id="intro"></p>
+  <div id="semCert" class="aviso" hidden>O número do certificado de autorização será publicado aqui assim que emitido. As vendas só devem ser consideradas oficiais com o certificado informado.</div>
+
+  <h2>1. Organizador</h2>
+  <div class="cx"><dl class="ficha" id="org"></dl></div>
+
+  <h2>2. Rifas vigentes</h2>
+  <div id="campanhas"><p>Carregando…</p></div>
+
+  <h2>3. Participação</h2>
+  <ul>
+    <li>Somente maiores de <b>18 anos</b> podem participar.</li>
+    <li>Cada número custa o valor informado na página da rifa. Os números são <b>atribuídos aleatoriamente</b> pelo sistema.</li>
+    <li>A reserva vale por <b>15 minutos</b>. Os números só ficam garantidos após a confirmação do pagamento (Pix ou cartão, via InfinitePay).</li>
+    <li>Pagamentos confirmados depois do vencimento da reserva mantêm os mesmos números, se ainda livres; caso contrário, o valor é <b>devolvido integralmente</b>.</li>
+    <li>Você consulta seus números a qualquer momento em <a href="minha-conta.html" style="color:var(--acc)">Meus números</a>, pelo telefone informado.</li>
+  </ul>
+
+  <h2>4. Sorteio pela Loteria Federal</h2>
+  <ul>
+    <li>O ganhador é definido pelo resultado oficial da <b>Loteria Federal da Caixa</b>, no concurso informado na página de cada rifa.</li>
+    <li>Ganha quem tiver os <b>últimos dígitos do 1º prêmio</b> (3 dígitos para rifas de 1.000 números, 4 para 10.000, e assim por diante).</li>
+    <li>Se esse número não estiver pago, vale o 2º prêmio, depois o 3º, o 4º e o 5º.</li>
+    <li id="desempate"></li>
+    <li id="naoVendido"></li>
+    <li>O resultado pode ser conferido por qualquer pessoa em <b>loterias.caixa.gov.br</b>.</li>
+  </ul>
+
+  <h2>5. Cotas premiadas</h2>
+  <p>Algumas rifas têm números com prêmio instantâneo, listados na página da rifa. Quem tiver um desses números pago recebe o prêmio no personagem (nick) informado ao organizador, em até 24h após a confirmação do pagamento.</p>
+
+  <h2>6. Entrega e reclamação do prêmio</h2>
+  <ul>
+    <li id="entrega"></li>
+    <li>O ganhador é avisado pelo WhatsApp informado na compra.</li>
+    <li>Prazo para reclamar o prêmio: <b id="prazo"></b>.</li>
+  </ul>
+
+  <h2 id="privacidade">7. Privacidade (LGPD)</h2>
+  <p>Coletamos apenas <b>nome/nick e telefone</b>, usados exclusivamente para identificar seus números, confirmar pagamentos, avisar o ganhador e entregar prêmios. Seus dados não são vendidos nem compartilhados, exceto com o meio de pagamento (InfinitePay) para processar a cobrança. Outros participantes nunca veem seu telefone. Os dados ficam guardados enquanto a rifa estiver ativa e pelo prazo legal após o sorteio. Para pedir correção ou exclusão, fale com a gente pelos contatos abaixo.</p>
+
+  <h2>8. Contato</h2>
+  <div class="cx"><dl class="ficha" id="contato"></dl></div>
+</div>
+<footer id="rodape"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js?v=1794408766"></script>
+<script src="shared.js?v=1794408766"></script>
+<script>
+const $=id=>document.getElementById(id);
+const dt=d=>d?new Date(d).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'}):null;
+(async()=>{
+  const s=await api.site(); aplicarTema(s); renderRodape(s);
+  $('nomeSite').textContent=s.nomeSite; document.title='Regulamento · '+s.nomeSite;
+  if(safeUrl(s.logo)) $('logo').innerHTML=`<img src="${esc(s.logo)}" alt="">`;
+  $('intro').innerHTML=`Regras das rifas de itens e personagens de Priston Tale realizadas por <b>${esc(s.organizador)}</b> em ${esc(s.nomeSite)}. Ao reservar números você declara ter lido e aceito este regulamento.`
+    +(s.certificado?` Ação autorizada · <b>Certificado nº ${esc(s.certificado)}</b>.`:'');
+  $('semCert').hidden=!!s.certificado;
+  const linha=(k,v)=>v?`<dt>${k}</dt><dd>${v}</dd>`:'';
+  $('org').innerHTML=linha('Organizador',esc(s.organizador))+linha('CPF/CNPJ',esc(s.docOrganizador))+linha('Certificado',esc(s.certificado)||'<span class="mut">a publicar</span>');
+  $('contato').innerHTML=linha('WhatsApp',linkZap(s.whatsapp)?`<a style="color:var(--acc)" href="${linkZap(s.whatsapp)}" target="_blank" rel="noopener">${esc(s.whatsapp)}</a>`:'')
+    +linha('Discord',safeUrl(s.discord)?`<a style="color:var(--acc)" href="${esc(s.discord)}" target="_blank" rel="noopener">entrar no servidor</a>`:'')
+    +linha('E-mail',esc(s.emailContato)) || '<dt>Contato</dt><dd class="mut">em breve</dd>';
+  $('desempate').innerHTML=`<b>Desempate:</b> ${esc(s.regraDesempate)}`;
+  $('naoVendido').innerHTML=`<b>Se não vender tudo:</b> ${esc(s.regraNaoVendido)}`;
+  $('entrega').textContent=s.entrega; $('prazo').textContent=s.prazoReclamacao;
+  try{
+    const cs=(await api.campanhas()).filter(c=>c.status==='ativa');
+    $('campanhas').innerHTML=cs.length?cs.map(c=>`<div class="cx"><h3>${esc(c.titulo)}</h3><dl class="ficha">
+      ${linha('Números',`${c.total.toLocaleString('pt-BR')} (${fmtNum(0,c.total)} a ${fmtNum(c.total-1,c.total)})`)}
+      ${linha('Valor por número',brl(c.preco))}
+      ${Number(c.valorMercado)>0?linha('Valor do prêmio',brl(c.valorMercado)):''}
+      ${linha('Vendas até',dt(c.dataLimite)||'<span class="mut">a definir</span>')}
+      ${linha('Sorteio',c.concurso?`Loteria Federal nº ${esc(c.concurso)} — ${esc(c.dataSorteio)}`:'<span class="mut">concurso a definir</span>')}
+      </dl></div>`).join(''):'<p>Nenhuma rifa aberta no momento.</p>';
+  }catch(e){ $('campanhas').innerHTML='<p>Não foi possível carregar.</p>'; }
+  if(location.hash) document.querySelector(location.hash)?.scrollIntoView();
+})();
+</script>
+</body>
+</html>

@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Rifa Priston</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794407527">
+<link rel="stylesheet" href="theme.css?v=1794408766">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 /* ----- abertura com cenário ----- */
@@ -50,6 +50,7 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5.4vw,56px);l
 .pills small{display:block;color:var(--mut);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .pills b{font-family:var(--display);font-size:clamp(16px,2.2vw,21px)}
 @media(max-width:420px){.pills{grid-template-columns:1fr 1fr}.pills div:last-child{grid-column:1/-1;border-left:0;border-top:1px dashed var(--line)}}
+.limite{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:800;color:var(--acc);background:color-mix(in srgb,var(--ouro),transparent 86%);border:1px solid color-mix(in srgb,var(--ouro),transparent 60%);border-radius:999px;padding:6px 12px;margin-bottom:12px}
 .prog{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:var(--mut);margin-bottom:7px}
 .prog b{color:var(--acc)}
 .trilho{height:10px;background:var(--bg3);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
@@ -165,6 +166,7 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
         <div id="pilMercado"><small>Valor do item</small><b id="mercado"></b></div>
         <div><small>Sorteio</small><b>Loteria Federal</b></div>
       </div>
+      <div class="limite" id="limite" hidden></div>
       <div class="prog"><span><b id="pct">0%</b> vendido</span><span id="restam"></span></div>
       <div class="trilho"><i id="barra" style="width:2%"></i></div>
 
@@ -176,7 +178,7 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
         <div class="corte"></div>
         <div class="total"><span>Total</span><b id="total"></b></div>
         <button class="btn-ouro" id="btComprar" onclick="abrirCompra()"></button>
-        <div class="selos"><span>🔒 Pix seguro</span><span>🎲 Resultado pela Caixa</span><span>✅ Ação autorizada</span></div>
+        <div class="selos"><span>🔒 Pix seguro</span><span>🎲 Resultado pela Caixa</span><span id="seloAut">✅ Ação autorizada</span></div>
       </div>
       <div id="ganhador"></div>
     </div>
@@ -199,19 +201,19 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
     <div class="cx">
       <div class="orgc"><div class="av" id="av"></div><div><small class="mut">Quem organiza</small><h4 style="margin:0" id="org2"></h4></div></div>
       <p class="mut" style="font-size:14px;margin:0 0 12px">Responsável pela campanha, pelo sorteio e pela entrega do prêmio.</p>
-      <div class="cert">✅ Ação autorizada · Certificado nº <span id="cert"></span></div>
+      <div class="cert" id="boxCert">✅ Ação autorizada · Certificado nº <span id="cert"></span></div>
     </div>
     <div class="cx"><p class="olho">Ranking</p><h4>🏅 Top compradores</h4><p class="mut" style="font-size:13px;margin:0 0 6px">O 1º lugar ganha um item bônus.</p><div id="top"></div></div>
     <div class="cx" id="cxCotas"><p class="olho">Na hora</p><h4>💎 Cotas premiadas</h4><p class="mut" style="font-size:13px;margin:0 0 6px">Tirou um desses números? Ganha na hora!</p><div id="cotas"></div></div>
   </div>
 </div>
-<footer><b id="nomeRodape"></b><br>Proibida a participação de menores de 18 anos. Jogue com responsabilidade.</footer>
+<footer id="rodape"></footer>
 
 <div class="modal" id="modal" onclick="if(event.target===this)fechar()"><div class="mb" id="mbox" role="dialog" aria-modal="true"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794407527"></script>
-<script src="shared.js?v=1794407527"></script>
+<script src="config.js?v=1794408766"></script>
+<script src="shared.js?v=1794408766"></script>
 <script>
 const $=id=>document.getElementById(id);
 let site, camp, nums={}, q=1, timer, fotoAtual=0;
@@ -236,10 +238,10 @@ async function carregar(){
 }
 function render(){
   document.title=`${camp.titulo} · ${site.nomeSite}`;
-  $('nomeSite').textContent=$('nomeRodape').textContent=site.nomeSite; $('slogan').textContent=site.slogan;
+  $('nomeSite').textContent=site.nomeSite; renderRodape(site); $('slogan').textContent=site.slogan;
   if(safeUrl(site.logo)) $('logo').innerHTML=`<img src="${esc(site.logo)}" alt="">`;
   $('org1').textContent=$('org2').textContent=site.organizador; $('av').textContent=(site.organizador||'?')[0];
-  $('cert').textContent=site.certificado; $('entrega').textContent=site.entrega;
+  $('cert').textContent=site.certificado; $('boxCert').hidden=!site.certificado; $('seloAut').hidden=!site.certificado; $('entrega').textContent=site.entrega;
   $('titulo').innerHTML=`<span class="ouro-txt">${esc(camp.titulo)}</span>`;
   $('desc').textContent=camp.descricao; $('preco').textContent=brl(camp.preco); $('mercado').textContent=brl(camp.valorMercado);
   const temValor=Number(camp.valorMercado)>0; $('pilMercado').hidden=!temValor;
@@ -262,6 +264,11 @@ function render(){
   const ct=camp.cotas||[]; $('cxCotas').hidden=!ct.length;
   $('cotas').innerHTML=ct.map(c=>{const saiu=nums[c.n]&&nums[c.n].pago;return `<div class="linha"><span><span class="nn">${fmtNum(+c.n,camp.total)}</span>${esc(c.premio)}</span><span class="${saiu?'fora':'ok'}">${saiu?'Já saiu':'Disponível'}</span></div>`}).join('');
   // status
+  if(camp.dataLimite){ const L=new Date(camp.dataLimite); clearInterval(window._cd);
+    const tick=()=>{ const ms=L-new Date(); if(ms<=0){ $('limite').textContent='⏰ Vendas encerradas'; $('compra').hidden=true; clearInterval(window._cd); return; }
+      const d=Math.floor(ms/864e5), h=Math.floor(ms%864e5/36e5), m=Math.floor(ms%36e5/6e4), sg=Math.floor(ms%6e4/1e3);
+      $('limite').textContent=`⏳ Vendas até ${L.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})} · faltam ${d?d+'d ':''}${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(sg).padStart(2,'0')}s`; };
+    $('limite').hidden=false; tick(); window._cd=setInterval(tick,1000); }
   if(camp.status==='encerrada'||livres()<=0){ $('compra').hidden=true; $('chip').textContent=camp.resultado?'Finalizada':'Esgotada'; $('chip').classList.remove('vivo'); }
   if(camp.resultado){ const r=camp.resultado; $('ganhador').innerHTML=`<div class="ganhador"><b>🏆 Ganhador — ${+r.premio}º prêmio da Federal</b><div class="n">${fmtNum(+r.numero,camp.total)}</div><b>${esc(r.nome)}</b></div>`; }
   setQ(q);
@@ -280,7 +287,7 @@ function abrirCompra(){
   <label>Nome ou nick no jogo</label><div class="campo"><input id="nome" maxlength="40" autocomplete="name"></div>
   <label>Telefone ou WhatsApp<small>Com DDD. É por ele que você consulta seus números.</small></label>
   <div class="tel"><span>🇧🇷 +55</span><input id="whats" inputmode="numeric" maxlength="15" placeholder="(11) 99999-9999" autocomplete="tel-national"></div>
-  <label style="font-weight:500;display:flex;gap:10px;align-items:center;cursor:pointer"><input type="checkbox" id="mais18" style="width:18px;height:18px;accent-color:var(--ouro)"> Tenho 18 anos ou mais e aceito o regulamento</label>
+  <label style="font-weight:500;display:flex;gap:10px;align-items:center;cursor:pointer"><input type="checkbox" id="mais18" style="width:18px;height:18px;accent-color:var(--ouro)"> Tenho 18 anos ou mais e aceito o <a href="regulamento.html" target="_blank" style="color:var(--acc);font-weight:800">regulamento</a></label>
   <button class="btn-ouro" id="btRes" onclick="reservar()">Gerar Pix</button><div class="erro" id="erro"></div>`);
   setTimeout(()=>$('nome').focus(),50);
 }

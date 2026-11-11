@@ -13,7 +13,11 @@ const SITE_PADRAO = {
   nomeSite: 'LojaVirtual.PT Rifas', slogan: 'Seu próximo personagem de Priston por um número',
   kicker: 'Rifas de Priston Tale · Sorteio pela Loteria Federal',
   apresentacao: 'Personagens upados, sets refinados e itens raros de Priston Tale. Garanta seus números pelo Pix e acompanhe o resultado oficial da Caixa.',
-  organizador: 'Felipe', certificado: '(preencher)',
+  organizador: 'Felipe',
+  docOrganizador: '', whatsapp: '', discord: '', emailContato: '',
+  regraNaoVendido: 'Se todos os números não forem vendidos até a data limite, o sorteio acontece assim mesmo no concurso da Loteria Federal informado, valendo apenas os números pagos.',
+  regraDesempate: 'Se nenhum dos 5 prêmios da Loteria Federal corresponder a um número pago, ganha o número pago mais próximo (para cima) dos últimos dígitos do 1º prêmio.',
+  prazoReclamacao: '30 dias após o resultado', certificado: '(preencher)',
   ctaTexto: 'Reservar', entrega: 'O personagem é transferido em até 24h após o resultado, com vídeo da entrega publicado nas nossas redes.',
   corDestaque: '#E2B458', corFundo: '#070C17', corClara: '#F3EEE3', temaPadrao: 'auto', logo: ''
 };
@@ -49,10 +53,10 @@ function apurarNumero(total, numeros, premios) {
 
 // ================= mapeamento banco <-> app =================
 const deDb = r => r && ({ id: r.id, titulo: r.titulo, descricao: r.descricao, imagem: r.imagem_url, galeria: r.galeria || [],
-  valorMercado: +r.valor_mercado, preco: +r.preco, total: r.total, concurso: r.concurso, dataSorteio: r.data_sorteio,
+  valorMercado: +r.valor_mercado, preco: +r.preco, total: r.total, concurso: r.concurso, dataSorteio: r.data_sorteio, dataLimite: r.data_limite,
   pacotes: r.pacotes || [], cotas: r.cotas || [], status: r.status, resultado: r.resultado });
 const paraDb = c => ({ titulo: c.titulo, descricao: c.descricao, imagem_url: c.imagem, galeria: c.galeria, valor_mercado: c.valorMercado,
-  preco: c.preco, total: c.total, concurso: c.concurso, data_sorteio: c.dataSorteio, pacotes: c.pacotes, cotas: c.cotas,
+  preco: c.preco, total: c.total, concurso: c.concurso, data_sorteio: c.dataSorteio, data_limite: c.dataLimite || null, pacotes: c.pacotes, cotas: c.cotas,
   status: c.status, resultado: c.resultado });
 
 // ================= modo DEMO (localStorage) =================
@@ -193,3 +197,16 @@ const api = {
   },
   async zerarDemo() { if (!ONLINE) { const s = dLoad(); s.numeros = {}; s.pedidos = []; s.campanha.resultado = null; dSave(s); } }
 };
+
+// ---------- rodapé comum ----------
+const linkZap = n => { n = String(n || '').replace(/\D/g, ''); return n ? 'https://wa.me/' + (n.length <= 11 ? '55' + n : n) : ''; };
+function renderRodape(site) {
+  const f = document.getElementById('rodape'); if (!f) return;
+  const links = [`<a href="regulamento.html">Regulamento</a>`, `<a href="regulamento.html#privacidade">Privacidade</a>`];
+  if (linkZap(site.whatsapp)) links.push(`<a href="${linkZap(site.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`);
+  if (safeUrl(site.discord)) links.push(`<a href="${esc(site.discord)}" target="_blank" rel="noopener">Discord</a>`);
+  f.innerHTML = `<b>${esc(site.nomeSite)}</b><br>`
+    + (site.certificado ? `Ação autorizada · Certificado nº ${esc(site.certificado)}<br>` : '')
+    + (site.docOrganizador ? `${esc(site.organizador)} · ${esc(site.docOrganizador)}<br>` : '')
+    + `<span class="links">${links.join(' · ')}</span><br>Proibida a participação de menores de 18 anos. Jogue com responsabilidade.`;
+}

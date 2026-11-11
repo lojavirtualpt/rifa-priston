@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <title>Painel da Rifa</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794407527">
+<link rel="stylesheet" href="theme.css?v=1794408766">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 .auth{max-width:420px;margin:8vh auto;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--sombra)}
@@ -114,6 +114,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
               <div><label>Status</label><select id="c_status"><option value="rascunho">Rascunho (oculta)</option><option value="ativa">Ativa (vendendo)</option><option value="encerrada">Encerrada</option></select></div>
               <div><label>Concurso Loteria Federal</label><input id="c_concurso" placeholder="ex: 6015"></div>
               <div><label>Data do sorteio</label><input id="c_dataSorteio" placeholder="sáb 21/11/2026 19h"></div>
+              <div><label>Data limite de vendas</label><input id="c_dataLimite" type="datetime-local"></div>
             </div>
             <label>Pacotes (separe por vírgula)</label><input id="c_pacotes" placeholder="10, 25, 50, 100">
           </div>
@@ -139,10 +140,21 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
               <div><label>Frase de efeito (título grande)</label><input id="s_slogan" maxlength="80"></div>
               <div><label>Faixa acima do título</label><input id="s_kicker" maxlength="80"></div>
               <div><label>Organizador</label><input id="s_organizador" maxlength="40"></div>
-              <div><label>Nº do certificado de autorização</label><input id="s_certificado" maxlength="60"></div>
+              <div><label>Nº do certificado de autorização <small class="mut">(vazio = selo "Ação autorizada" fica oculto)</small></label><input id="s_certificado" maxlength="60"></div>
               <div><label>Texto do botão de compra</label><input id="s_ctaTexto" maxlength="30"></div>
             </div>
             <label>Texto de apresentação (abaixo do título na página inicial)</label><textarea id="s_apresentacao" rows="3" maxlength="300"></textarea>
+            <h2 style="margin-top:22px">Regulamento e contato</h2>
+            <p class="mut" style="margin:0">Aparecem na página de Regulamento e no rodapé.</p>
+            <div class="g2">
+              <div><label>CPF ou CNPJ do organizador</label><input id="s_docOrganizador" maxlength="30" placeholder="CNPJ 00.000.000/0001-00"></div>
+              <div><label>WhatsApp de contato</label><input id="s_whatsapp" maxlength="20" placeholder="(11) 99999-9999"></div>
+              <div><label>Link do Discord</label><input id="s_discord" maxlength="120" placeholder="https://discord.gg/..."></div>
+              <div><label>E-mail de contato</label><input id="s_emailContato" maxlength="80"></div>
+              <div><label>Prazo para reclamar o prêmio</label><input id="s_prazoReclamacao" maxlength="60"></div>
+            </div>
+            <label>Regra se não vender todos os números</label><textarea id="s_regraNaoVendido" rows="3" maxlength="500"></textarea>
+            <label>Regra de desempate (nenhum prêmio da Federal em número pago)</label><textarea id="s_regraDesempate" rows="3" maxlength="500"></textarea>
             <label>Texto da entrega do prêmio</label><textarea id="s_entrega" rows="3" maxlength="600"></textarea>
             <label>Logo (opcional)</label><div class="fotos" style="grid-template-columns:110px" id="logoBox"></div>
             <input type="file" id="arqLogo" accept="image/png,image/jpeg,image/webp" hidden onchange="subirLogo(this.files[0])">
@@ -176,8 +188,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794407527"></script>
-<script src="shared.js?v=1794407527"></script>
+<script src="config.js?v=1794408766"></script>
+<script src="shared.js?v=1794408766"></script>
 <script>
 const $=id=>document.getElementById(id);
 let camp=null, site=null, fator=null, tentativas=0;
@@ -244,6 +256,7 @@ $('abas').onclick=e=>{const b=e.target.closest('button'); if(!b) return;
 const CC=['titulo','descricao','valorMercado','preco','total','status','concurso','dataSorteio'];
 function preencherCamp(){
   CC.forEach(k=>$('c_'+k).value=camp[k]??''); $('c_pacotes').value=(camp.pacotes||[]).join(', ');
+  $('c_dataLimite').value=camp.dataLimite?new Date(new Date(camp.dataLimite).getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16):'';
   $('verPag').href=camp.id&&api.online?`rifa.html?c=${encodeURIComponent(camp.id)}`:'rifa.html'; $('verPag').hidden=!camp.id&&api.online;
   renderFotos(); renderCotas();
 }
@@ -265,6 +278,7 @@ function addCota(){ camp.cotas=camp.cotas||[]; camp.cotas.push({n:Math.floor(Mat
 async function salvarCamp(){
   const novo={...camp}; CC.forEach(k=>novo[k]=$('c_'+k).value);
   ['valorMercado','preco','total'].forEach(k=>novo[k]=+novo[k]);
+  novo.dataLimite=$('c_dataLimite').value?new Date($('c_dataLimite').value).toISOString():null;
   novo.pacotes=$('c_pacotes').value.split(',').map(x=>parseInt(x)).filter(x=>x>0).slice(0,6);
   novo.cotas=(camp.cotas||[]).filter(c=>c.premio&&c.n>=0&&c.n<novo.total);
   novo.imagem=novo.galeria[0]||'';
@@ -278,7 +292,7 @@ function novaCamp(){
   document.querySelector('[data-aba=personagem]').click(); toast('Preencha os dados e clique em Salvar'); }
 
 // aparência
-const SC=['corDestaque','corFundo','corClara','temaPadrao','nomeSite','slogan','kicker','apresentacao','organizador','certificado','ctaTexto','entrega'];
+const SC=['corDestaque','corFundo','corClara','temaPadrao','nomeSite','slogan','kicker','apresentacao','organizador','docOrganizador','whatsapp','discord','emailContato','prazoReclamacao','regraNaoVendido','regraDesempate','certificado','ctaTexto','entrega'];
 const PALETAS=[['#E2B458','#070C17','#F3EEE3'],['#C0392B','#140A0A','#F6EEEA'],['#3FA9F5','#06111F','#EEF4FA'],['#9B59F6','#0E0819','#F2EEF9'],['#2ECC71','#07130D','#EEF6F1']];
 function preencherSite(){
   SC.forEach(k=>$('s_'+k).value=site[k]??'');
