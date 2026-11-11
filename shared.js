@@ -100,7 +100,7 @@ const api = {
   async meusTodos(whats) {
     whats = whats.replace(/\D/g, '');
     if (ONLINE) { const { data, error } = await sb.rpc('meus_todos', { p_whats: whats }); if (error) throw error;
-      return data.map(r => ({ campanha: { id: r.campanha_id, titulo: r.titulo, imagem: r.imagem, total: r.total, status: r.status_campanha, resultado: r.resultado }, id: r.pedido, status: r.status, numeros: r.numeros, valor: +r.valor, created_at: r.created_at, checkout_url: r.checkout_url, expira_em: r.expira_em })); }
+      return data.map(r => ({ campanha: { id: r.campanha_id, titulo: r.titulo, imagem: r.imagem, total: r.total, status: r.status_campanha, resultado: r.resultado }, id: r.pedido, status: r.status, numeros: r.numeros || [], qtd: r.qtd, valor: +r.valor, created_at: r.created_at, checkout_url: r.checkout_url, expira_em: r.expira_em })); }
     const s = dLoad(); return s.pedidos.filter(p => p.whats === whats && p.status !== 'expirado').map(p => ({ ...p, campanha: s.campanha }));
   },
   async listarCampanhas() { // admin: inclui rascunhos
@@ -119,7 +119,7 @@ const api = {
     return map;
   },
   async reservar(c, qtd, nome, whats) {
-    if (ONLINE) { const { data, error } = await sb.rpc('reservar', { p_campanha: c.id, p_qtd: qtd, p_nome: nome, p_whats: whats }); if (error) throw new Error(error.message); return data; }
+    if (ONLINE) { const { data, error } = await sb.rpc('reservar_publico', { p_campanha: c.id, p_qtd: qtd, p_nome: nome, p_whats: whats }); if (error) throw new Error(error.message); return data; }
     const s = dLoad(); const livres = [];
     for (let i = 0; i < s.campanha.total; i++) if (!s.numeros[i]) livres.push(i);
     if (livres.length < qtd) throw new Error('Números insuficientes');
@@ -127,7 +127,7 @@ const api = {
     const id = Date.now().toString(36).toUpperCase();
     nums.forEach(n => s.numeros[n] = { pago: false, pedido: id });
     s.pedidos.push({ id, nome: nome.slice(0, 40), whats: whats.replace(/\D/g, ''), numeros: nums, valor: qtd * s.campanha.preco, status: 'aguardando', created_at: new Date().toISOString() });
-    dSave(s); return { pedido: id, numeros: nums, valor: qtd * s.campanha.preco };
+    dSave(s); return { pedido: id, qtd, valor: qtd * s.campanha.preco };
   },
   async meus(c, whats) {
     whats = whats.replace(/\D/g, '');

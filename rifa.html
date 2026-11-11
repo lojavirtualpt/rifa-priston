@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Rifa Priston</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css?v=1794409109">
+<link rel="stylesheet" href="theme.css?v=1794409895">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 /* ----- abertura com cenário ----- */
@@ -212,8 +212,8 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
 <div class="modal" id="modal" onclick="if(event.target===this)fechar()"><div class="mb" id="mbox" role="dialog" aria-modal="true"></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794409109"></script>
-<script src="shared.js?v=1794409109"></script>
+<script src="config.js?v=1794409895"></script>
+<script src="shared.js?v=1794409895"></script>
 <script>
 const $=id=>document.getElementById(id);
 let site, camp, nums={}, q=1, timer, fotoAtual=0;
@@ -298,8 +298,8 @@ async function reservar(){
   try{
     const r=await api.reservar(camp,q,nome,whats);
     modal(`<h2>Reserva feita! 🎟</h2><p class="mut" style="margin:0">Pague em até <span class="tempo" id="tm">15:00</span> para garantir seus números.</p>
-    <p style="margin:14px 0 0">Total <b>${brl(r.valor)}</b> · seus números (liberados após o pagamento):</p>
-    <div class="nums">${r.numeros.slice().sort((a,b)=>a-b).map(n=>`<b>${fmtNum(n,camp.total)}</b>`).join('')}</div>
+    <div class="pix" style="margin:14px 0"><b style="font-size:22px">🎟 ${+r.qtd} número${r.qtd>1?'s':''} reservado${r.qtd>1?'s':''}</b><br>
+    <span class="mut">Total <b style="color:var(--txt)">${brl(r.valor)}</b>. Seus números aparecem em <b>Meus números</b> assim que o pagamento for confirmado.</span></div>
     ${api.online?`<div id="payBox"><button class="btn-ouro" disabled>Gerando pagamento…</button></div>
       <p class="mut" style="font-size:13px;text-align:center">Pix ou cartão pela <b>InfinitePay</b>. A confirmação é automática.</p>`
       :`<button class="btn-ouro" onclick="pagarDemo('${esc(r.pedido)}')">✔ Simular pagamento (demo)</button>`}`);
