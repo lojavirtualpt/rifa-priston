@@ -198,6 +198,14 @@ const api = {
     if (!ONLINE) return api.pagarDemo(id);
     const { error } = await sb.rpc('confirmar_pedido', { p_pedido: id }); if (error) throw new Error(error.message);
   },
+  async cancelar(id, motivo) {
+    if (!ONLINE) { const s = dLoad(); const p = s.pedidos.find(x => x.id === id); if (p) { p.status = 'cancelado'; p.numeros.forEach(n => delete s.numeros[n]); dSave(s); } return; }
+    const { error } = await sb.rpc('cancelar_pedido', { p_pedido: id, p_motivo: motivo || '' }); if (error) throw new Error(error.message);
+  },
+  async excluir(id) {
+    if (!ONLINE) { const s = dLoad(); s.pedidos = s.pedidos.filter(x => x.id !== id); dSave(s); return; }
+    const { error } = await sb.rpc('excluir_pedido', { p_pedido: id }); if (error) throw new Error(error.message);
+  },
   async zerarDemo() { if (!ONLINE) { const s = dLoad(); s.numeros = {}; s.pedidos = []; s.campanha.resultado = null; dSave(s); } }
 };
 
