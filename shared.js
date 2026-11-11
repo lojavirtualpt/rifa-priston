@@ -11,6 +11,8 @@ const brl = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', cur
 
 const SITE_PADRAO = {
   nomeSite: 'LojaVirtual.PT Rifas', slogan: 'Seu próximo personagem de Priston por um número',
+  kicker: 'Rifas de Priston Tale · Sorteio pela Loteria Federal',
+  apresentacao: 'Personagens upados, sets refinados e itens raros de Priston Tale. Garanta seus números pelo Pix e acompanhe o resultado oficial da Caixa.',
   organizador: 'Felipe', certificado: '(preencher)',
   ctaTexto: 'Reservar', entrega: 'O personagem é transferido em até 24h após o resultado, com vídeo da entrega publicado nas nossas redes.',
   corDestaque: '#E2B458', corFundo: '#070C17', corClara: '#F3EEE3', temaPadrao: 'auto', logo: ''

@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Meus números</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme.css?v=1794407527">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 .box{max-width:720px;margin:36px auto 60px}
@@ -58,8 +58,8 @@ h1{font-family:var(--display);font-size:clamp(30px,5vw,44px);margin:0 0 6px}
   <div id="saida"></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="shared.js"></script>
+<script src="config.js?v=1794407527"></script>
+<script src="shared.js?v=1794407527"></script>
 <script>
 const $=id=>document.getElementById(id);
 (async()=>{ const s=await api.site(); aplicarTema(s); $('nomeSite').textContent=s.nomeSite;

@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <title>Painel da Rifa</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme.css?v=1794407527">
 <link rel="icon" href="logo-p.svg" type="image/svg+xml">
 <style>
 .auth{max-width:420px;margin:8vh auto;background:var(--bg2);border:1px solid var(--line);border-radius:22px;padding:28px;box-shadow:var(--sombra)}
@@ -136,11 +136,13 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
           <div class="card"><h2>Textos</h2>
             <div class="g2">
               <div><label>Nome do site</label><input id="s_nomeSite" maxlength="40"></div>
-              <div><label>Frase de efeito</label><input id="s_slogan" maxlength="80"></div>
+              <div><label>Frase de efeito (título grande)</label><input id="s_slogan" maxlength="80"></div>
+              <div><label>Faixa acima do título</label><input id="s_kicker" maxlength="80"></div>
               <div><label>Organizador</label><input id="s_organizador" maxlength="40"></div>
               <div><label>Nº do certificado de autorização</label><input id="s_certificado" maxlength="60"></div>
               <div><label>Texto do botão de compra</label><input id="s_ctaTexto" maxlength="30"></div>
             </div>
+            <label>Texto de apresentação (abaixo do título na página inicial)</label><textarea id="s_apresentacao" rows="3" maxlength="300"></textarea>
             <label>Texto da entrega do prêmio</label><textarea id="s_entrega" rows="3" maxlength="600"></textarea>
             <label>Logo (opcional)</label><div class="fotos" style="grid-template-columns:110px" id="logoBox"></div>
             <input type="file" id="arqLogo" accept="image/png,image/jpeg,image/webp" hidden onchange="subirLogo(this.files[0])">
@@ -174,8 +176,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 8px;
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="config.js"></script>
-<script src="shared.js"></script>
+<script src="config.js?v=1794407527"></script>
+<script src="shared.js?v=1794407527"></script>
 <script>
 const $=id=>document.getElementById(id);
 let camp=null, site=null, fator=null, tentativas=0;
@@ -276,7 +278,7 @@ function novaCamp(){
   document.querySelector('[data-aba=personagem]').click(); toast('Preencha os dados e clique em Salvar'); }
 
 // aparência
-const SC=['corDestaque','corFundo','corClara','temaPadrao','nomeSite','slogan','organizador','certificado','ctaTexto','entrega'];
+const SC=['corDestaque','corFundo','corClara','temaPadrao','nomeSite','slogan','kicker','apresentacao','organizador','certificado','ctaTexto','entrega'];
 const PALETAS=[['#E2B458','#070C17','#F3EEE3'],['#C0392B','#140A0A','#F6EEEA'],['#3FA9F5','#06111F','#EEF4FA'],['#9B59F6','#0E0819','#F2EEF9'],['#2ECC71','#07130D','#EEF6F1']];
 function preencherSite(){
   SC.forEach(k=>$('s_'+k).value=site[k]??'');
