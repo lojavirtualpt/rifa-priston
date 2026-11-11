@@ -162,7 +162,7 @@ footer b{font-family:var(--display);letter-spacing:.12em;text-transform:uppercas
       <div class="org">Campanha de <b id="org1"></b></div>
       <div class="pills">
         <div><small>Cada número</small><b id="preco"></b></div>
-        <div><small>Valor do item</small><b id="mercado"></b></div>
+        <div id="pilMercado"><small>Valor do item</small><b id="mercado"></b></div>
         <div><small>Sorteio</small><b>Loteria Federal</b></div>
       </div>
       <div class="prog"><span><b id="pct">0%</b> vendido</span><span id="restam"></span></div>
@@ -242,6 +242,8 @@ function render(){
   $('cert').textContent=site.certificado; $('entrega').textContent=site.entrega;
   $('titulo').innerHTML=`<span class="ouro-txt">${esc(camp.titulo)}</span>`;
   $('desc').textContent=camp.descricao; $('preco').textContent=brl(camp.preco); $('mercado').textContent=brl(camp.valorMercado);
+  const temValor=Number(camp.valorMercado)>0; $('pilMercado').hidden=!temValor;
+  $('pilMercado').parentElement.style.gridTemplateColumns=temValor?'':'1fr 1fr';
   const v=Object.keys(nums).length, pct=v/camp.total*100;
   $('barra').style.width=Math.max(pct,2)+'%'; $('pct').textContent=pct.toFixed(1).replace('.',',')+'%'; $('restam').textContent=`${camp.total-v} restantes`;
   $('faixa').textContent=`${fmtNum(0,camp.total)} a ${fmtNum(camp.total-1,camp.total)}`; $('dig').textContent=digitos(camp.total);
