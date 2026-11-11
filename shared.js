@@ -10,7 +10,7 @@ const fmtNum = (n, total) => String(n).padStart(digitos(total), '0');
 const brl = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const SITE_PADRAO = {
-  nomeSite: 'Priston Rifas', slogan: 'Itens lendários ao alcance de um número',
+  nomeSite: 'LojaVirtual.PT Rifas', slogan: 'Seu próximo personagem de Priston por um número',
   organizador: 'Felipe', certificado: '(preencher)',
   ctaTexto: 'Reservar', entrega: 'O personagem é transferido em até 24h após o resultado, com vídeo da entrega publicado nas nossas redes.',
   corDestaque: '#E2B458', corFundo: '#070C17', corClara: '#F3EEE3', temaPadrao: 'auto', logo: ''
